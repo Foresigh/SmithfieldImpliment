@@ -78,9 +78,10 @@ app.get('*', (req, res) => {
 });
 
 // ── Start ────────────────────────────────────────────────────
-initDB().then(() => {
-  app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Server running on port ${PORT}`));
-}).catch(err => {
-  console.error('Failed to initialize database:', err.message);
-  process.exit(1);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  initDB().catch(err => {
+    console.error('Failed to initialize database:', err.message);
+    process.exit(1);
+  });
 });
