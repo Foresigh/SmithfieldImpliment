@@ -60,6 +60,18 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
+// ── POST /api/admin/login ─────────────────────────────────────
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  if (
+    username === process.env.ADMIN_USERNAME &&
+    password === process.env.ADMIN_PASSWORD
+  ) {
+    return res.json({ success: true, token: process.env.ADMIN_SECRET });
+  }
+  return res.status(401).json({ error: 'Invalid username or password.' });
+});
+
 // ── Admin auth middleware ─────────────────────────────────────
 function adminAuth(req, res, next) {
   const secret = req.headers['x-admin-secret'];

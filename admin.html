@@ -313,14 +313,18 @@
       <span>Admin Dashboard</span>
     </div>
     <h2 class="login-title">Sign in</h2>
-    <p class="login-sub">Enter your admin secret to continue.</p>
+    <p class="login-sub">Enter your admin credentials to continue.</p>
     <form id="login-form">
       <div class="form-group">
-        <label class="form-label" for="secret-input">Admin Secret</label>
-        <input id="secret-input" type="password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
+        <label class="form-label" for="username-input">Username</label>
+        <input id="username-input" type="text" class="form-input" placeholder="admin" required autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password-input">Password</label>
+        <input id="password-input" type="password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
       </div>
       <button type="submit" class="login-btn">Sign In</button>
-      <div class="login-error" id="login-error">Incorrect secret. Please try again.</div>
+      <div class="login-error" id="login-error">Invalid username or password.</div>
     </form>
   </div>
 </div>
@@ -450,18 +454,29 @@
   // ── Login ──
   document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const secret = document.getElementById('secret-input').value;
+    const username = document.getElementById('username-input').value;
+    const password = document.getElementById('password-input').value;
     const err = document.getElementById('login-error');
+    const btn = e.target.querySelector('.login-btn');
     err.style.display = 'none';
+    btn.textContent = 'Signing in...';
+    btn.disabled = true;
     try {
-      SECRET = secret;
-      await apiFetch('/api/admin/stats');
+      const res  = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      SECRET = data.token;
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       loadDashboard();
     } catch {
-      SECRET = '';
       err.style.display = 'block';
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
     }
   });
 
