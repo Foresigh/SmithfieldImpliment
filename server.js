@@ -60,16 +60,68 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// ── GET /api/subscribers (admin) ─────────────────────────────
-app.get('/api/subscribers', async (req, res) => {
+// ── Admin auth middleware ─────────────────────────────────────
+function adminAuth(req, res, next) {
   const secret = req.headers['x-admin-secret'];
-  if (secret !== process.env.ADMIN_SECRET) {
+  if (!secret || secret !== process.env.ADMIN_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+  next();
+}
+
+// ── GET /api/admin/stats ──────────────────────────────────────
+app.get('/api/admin/stats', adminAuth, async (req, res) => {
+  const [subscribers, contacts, recentSubs] = await Promise.all([
+    pool.query('SELECT COUNT(*) FROM subscribers'),
+    pool.query('SELECT COUNT(*) FROM contact_submissions'),
+    pool.query('SELECT COUNT(*) FROM subscribers WHERE created_at > NOW() - INTERVAL \'7 days\''),
+  ]);
+  res.json({
+    totalSubscribers: parseInt(subscribers.rows[0].count),
+    totalContacts:    parseInt(contacts.rows[0].count),
+    newThisWeek:      parseInt(recentSubs.rows[0].count),
+  });
+});
+
+// ── GET /api/admin/subscribers ────────────────────────────────
+app.get('/api/admin/subscribers', adminAuth, async (req, res) => {
   const { rows } = await pool.query(
     'SELECT id, name, email, created_at FROM subscribers ORDER BY created_at DESC'
   );
   res.json(rows);
+});
+
+// ── DELETE /api/admin/subscribers/:id ────────────────────────
+app.delete('/api/admin/subscribers/:id', adminAuth, async (req, res) => {
+  await pool.query('DELETE FROM subscribers WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+});
+
+// ── GET /api/admin/contacts ───────────────────────────────────
+app.get('/api/admin/contacts', adminAuth, async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, name, email, message, created_at FROM contact_submissions ORDER BY created_at DESC'
+  );
+  res.json(rows);
+});
+
+// ── DELETE /api/admin/contacts/:id ───────────────────────────
+app.delete('/api/admin/contacts/:id', adminAuth, async (req, res) => {
+  await pool.query('DELETE FROM contact_submissions WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+});
+
+// ── Backwards compat ──────────────────────────────────────────
+app.get('/api/subscribers', adminAuth, async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, name, email, created_at FROM subscribers ORDER BY created_at DESC'
+  );
+  res.json(rows);
+});
+
+// ── Admin dashboard ──────────────────────────────────────────
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // ── Serve index.html for all other routes ───────────────────
