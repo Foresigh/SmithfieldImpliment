@@ -25,6 +25,17 @@ async function initDB() {
         message   TEXT NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS sale_items (
+        id          SERIAL PRIMARY KEY,
+        title       VARCHAR(255) NOT NULL,
+        percentage  INTEGER NOT NULL,
+        note        VARCHAR(255),
+        image_data  TEXT NOT NULL,
+        image_type  VARCHAR(50) NOT NULL,
+        published   BOOLEAN DEFAULT false,
+        created_at  TIMESTAMPTZ DEFAULT NOW()
+      );
     `);
     console.log('✅ Database tables ready');
   } finally {

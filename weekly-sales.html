@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Sales — Smithfield Implement Co.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:      #1279BE;
+      --blue-dark: #0d5f96;
+      --gold:      #FFB302;
+      --gold-dark: #d99500;
+      --white:     #ffffff;
+      --off-white: #f9f7f4;
+      --gray-100:  #f3f4f6;
+      --gray-500:  #6b7280;
+      --gray-900:  #111827;
+      --red:       #dc2626;
+      --font-serif:'Playfair Display', Georgia, serif;
+      --font-sans: 'Inter', system-ui, sans-serif;
+      --radius:    12px;
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,.14);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--off-white); color: var(--gray-900); -webkit-font-smoothing: antialiased; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Announcement bar ── */
+    .announcement {
+      background: var(--blue-dark); color: #fff;
+      text-align: center; padding: 10px 24px;
+      font-size: .82rem; font-weight: 500;
+    }
+    .announcement a { color: var(--gold); text-decoration: underline; }
+
+    /* ── Navbar ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid var(--gray-100);
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .navbar-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 72px;
+    }
+    .logo { display: flex; flex-direction: column; line-height: 1.1; }
+    .logo-main { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 900; color: var(--blue); }
+    .logo-sub  { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dark); }
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 8px;
+      background: var(--gray-100); font-size: .85rem; font-weight: 600;
+      color: var(--gray-900); transition: background .2s;
+    }
+    .nav-back:hover { background: #e5e7eb; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #0a3d6b 0%, var(--blue) 100%);
+      padding: 64px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 60% 50%, rgba(255,179,2,.18) 0%, transparent 60%);
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,179,2,.2); border: 1px solid rgba(255,179,2,.4);
+      color: var(--gold); padding: 6px 16px; border-radius: 99px;
+      font-size: .75rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 900; color: #fff; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--gold); }
+    .hero p { color: rgba(255,255,255,.8); font-size: 1rem; }
+
+    /* ── Container ── */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Sale Items Grid ── */
+    .sales-section { padding: 64px 0; }
+    .sales-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+      gap: 28px;
+    }
+    .sale-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-100);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .sale-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+    .sale-card-img {
+      width: 100%; display: block;
+      max-height: 220px; object-fit: cover;
+    }
+    .sale-card-body {
+      padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .sale-card-info h3 { font-size: 1.1rem; font-weight: 700; }
+    .sale-card-info p  { font-size: .8rem; color: var(--gray-500); margin-top: 3px; }
+    .sale-pct-badge {
+      flex-shrink: 0;
+      background: var(--red);
+      color: #fff;
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1;
+      padding: 10px 16px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .sale-pct-badge span { display: block; font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .85; margin-top: 2px; font-family: var(--font-sans); }
+
+    /* ── Empty ── */
+    .empty {
+      text-align: center; padding: 96px 24px;
+      color: var(--gray-500);
+    }
+    .empty svg { margin: 0 auto 16px; opacity: .25; }
+    .empty h3 { font-size: 1.2rem; font-weight: 700; color: var(--gray-900); margin-bottom: 8px; }
+
+    /* ── Subscribe strip ── */
+    .subscribe-strip {
+      background: var(--gray-900); color: #fff;
+      padding: 48px 24px; text-align: center;
+    }
+    .subscribe-strip h2 { font-family: var(--font-serif); font-size: 1.8rem; margin-bottom: 8px; }
+    .subscribe-strip p  { color: rgba(255,255,255,.6); margin-bottom: 24px; font-size: .9rem; }
+    .subscribe-form { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; max-width: 440px; margin: 0 auto; }
+    .subscribe-form input {
+      flex: 1; min-width: 200px; padding: 12px 16px;
+      border-radius: 8px; border: none; font-size: .875rem;
+      font-family: var(--font-sans); outline: none;
+    }
+    .subscribe-form button {
+      padding: 12px 24px; background: var(--gold); color: var(--gray-900);
+      border: none; border-radius: 8px; font-weight: 700; font-size: .875rem;
+      font-family: var(--font-sans); cursor: pointer; transition: background .2s; white-space: nowrap;
+    }
+    .subscribe-form button:hover { background: var(--gold-dark); }
+
+    /* ── Footer ── */
+    .footer {
+      background: #0a1929; color: rgba(255,255,255,.5);
+      text-align: center; padding: 24px;
+      font-size: .8rem;
+    }
+    .footer a { color: var(--gold); }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #e5e7eb; border-top-color: var(--blue);
+      border-radius: 50%; animation: spin .7s linear infinite;
+      margin: 64px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 600px) {
+      .sales-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="announcement">
+    🏆 Voted Best of Northern Utah 2024 &amp; 2025 &nbsp;|&nbsp; <a href="/">Back to Home</a>
+  </div>
+
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="/" class="logo">
+        <span class="logo-main">Smithfield Implement Co.</span>
+        <span class="logo-sub">Where Your Money Always Buys You More</span>
+      </a>
+      <a href="/" class="nav-back">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Back to Home
+      </a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>
+        Updated Weekly
+      </div>
+      <h1>This Week's <span>Sales</span></h1>
+      <p>Fresh deals across all departments — check back every week for new markdowns and specials.</p>
+    </div>
+  </section>
+
+  <section class="sales-section">
+    <div class="container">
+      <div id="sales-container"><div class="spinner"></div></div>
+    </div>
+  </section>
+
+  <div class="subscribe-strip">
+    <h2>Never Miss a Sale</h2>
+    <p>Get weekly deals delivered straight to your inbox.</p>
+    <form class="subscribe-form" onsubmit="handleSub(event)">
+      <input type="email" placeholder="your@email.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+  </div>
+
+  <footer class="footer">
+    &copy; 2026 <a href="/">Smithfield Implement Co.</a> — Smithfield, Utah
+  </footer>
+
+  <script>
+    async function loadSales() {
+      const container = document.getElementById('sales-container');
+      try {
+        const res   = await fetch('/api/sales');
+        const items = await res.json();
+        if (!items.length) {
+          container.innerHTML = `
+            <div class="empty">
+              <svg width="56" height="56" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              <h3>No sales this week — check back soon!</h3>
+              <p>Subscribe below to be notified when new deals go live.</p>
+            </div>`;
+          return;
+        }
+        container.innerHTML = `<div class="sales-grid">${items.map(item => `
+          <div class="sale-card">
+            <img class="sale-card-img" src="/api/sales/image/${item.id}" alt="${esc(item.title)}" loading="lazy" />
+            <div class="sale-card-body">
+              <div class="sale-card-info">
+                <h3>${esc(item.title)}</h3>
+                ${item.note ? `<p>*${esc(item.note)}</p>` : ''}
+              </div>
+              <div class="sale-pct-badge">
+                ${item.percentage}%
+                <span>OFF</span>
+              </div>
+            </div>
+          </div>`).join('')}
+        </div>`;
+      } catch {
+        container.innerHTML = '<div class="empty"><h3>Could not load sales. Please try again later.</h3></div>';
+      }
+    }
+
+    async function handleSub(e) {
+      e.preventDefault();
+      const email = e.target.querySelector('input').value;
+      const btn   = e.target.querySelector('button');
+      btn.textContent = 'Subscribing...';
+      try {
+        await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: email.split('@')[0], email }),
+        });
+        btn.textContent = 'Subscribed ✓';
+        btn.style.background = '#16a34a';
+        btn.style.color = '#fff';
+        e.target.reset();
+      } catch {
+        btn.textContent = 'Subscribe';
+      }
+    }
+
+    function esc(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadSales();
+  </script>
+</body>
+</html>

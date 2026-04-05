@@ -2,7 +2,17 @@ require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
+const multer  = require('multer');
 const { pool, initDB } = require('./db');
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) cb(null, true);
+    else cb(new Error('Only image files are allowed'));
+  },
+});
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -131,9 +141,73 @@ app.get('/api/subscribers', adminAuth, async (req, res) => {
   res.json(rows);
 });
 
+// ── GET /api/sales (public — published items only) ───────────
+app.get('/api/sales', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, title, percentage, note, created_at FROM sale_items WHERE published = true ORDER BY created_at DESC'
+  );
+  res.json(rows);
+});
+
+// ── GET /api/sales/image/:id (serves the image) ──────────────
+app.get('/api/sales/image/:id', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT image_data, image_type FROM sale_items WHERE id = $1', [req.params.id]
+  );
+  if (!rows.length) return res.status(404).end();
+  const buf = Buffer.from(rows[0].image_data, 'base64');
+  res.setHeader('Content-Type', rows[0].image_type);
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.send(buf);
+});
+
+// ── GET /api/admin/sales (all items) ─────────────────────────
+app.get('/api/admin/sales', adminAuth, async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, title, percentage, note, published, created_at FROM sale_items ORDER BY created_at DESC'
+  );
+  res.json(rows);
+});
+
+// ── POST /api/admin/sales (create) ───────────────────────────
+app.post('/api/admin/sales', adminAuth, upload.single('image'), async (req, res) => {
+  const { title, percentage, note } = req.body;
+  if (!title || !percentage || !req.file) {
+    return res.status(400).json({ error: 'Title, percentage, and image are required.' });
+  }
+  const imageData = req.file.buffer.toString('base64');
+  const imageType = req.file.mimetype;
+  const { rows } = await pool.query(
+    'INSERT INTO sale_items (title, percentage, note, image_data, image_type) VALUES ($1, $2, $3, $4, $5) RETURNING id, title, percentage, note, published, created_at',
+    [title.trim(), parseInt(percentage), note?.trim() || null, imageData, imageType]
+  );
+  res.json(rows[0]);
+});
+
+// ── PATCH /api/admin/sales/:id/toggle (publish/unpublish) ────
+app.patch('/api/admin/sales/:id/toggle', adminAuth, async (req, res) => {
+  const { rows } = await pool.query(
+    'UPDATE sale_items SET published = NOT published WHERE id = $1 RETURNING published',
+    [req.params.id]
+  );
+  if (!rows.length) return res.status(404).json({ error: 'Not found' });
+  res.json({ published: rows[0].published });
+});
+
+// ── DELETE /api/admin/sales/:id ──────────────────────────────
+app.delete('/api/admin/sales/:id', adminAuth, async (req, res) => {
+  await pool.query('DELETE FROM sale_items WHERE id = $1', [req.params.id]);
+  res.json({ success: true });
+});
+
 // ── Admin dashboard ──────────────────────────────────────────
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
+// ── Weekly sales page ─────────────────────────────────────────
+app.get('/weekly-sales', (req, res) => {
+  res.sendFile(path.join(__dirname, 'weekly-sales.html'));
 });
 
 // ── Serve index.html for all other routes ───────────────────

@@ -352,6 +352,10 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Contact Messages
       </button>
+      <button class="nav-item" data-page="sales">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Weekly Sales
+      </button>
     </nav>
     <div class="sidebar-footer">
       <button class="logout-btn" id="logout-btn">
@@ -394,6 +398,60 @@
             </div>
           </div>
           <div id="subs-table-wrap"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Weekly Sales Page -->
+      <div class="page" id="page-sales">
+        <div style="display:grid;grid-template-columns:380px 1fr;gap:24px;align-items:start;">
+
+          <!-- Upload Form -->
+          <div class="table-card" style="padding:28px;">
+            <h3 style="font-size:.95rem;font-weight:700;margin-bottom:20px;">Add Sale Item</h3>
+            <form id="sale-form">
+              <div class="form-group">
+                <label class="form-label">Sale Title</label>
+                <input type="text" class="form-input" id="sale-title" placeholder="e.g. All Boots and Shoes" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Percentage Off</label>
+                <div style="position:relative;">
+                  <input type="number" class="form-input" id="sale-pct" placeholder="15" min="1" max="99" required style="padding-right:40px;" />
+                  <span style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);">%</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Note <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+                <input type="text" class="form-input" id="sale-note" placeholder="e.g. Excludes items already on sale" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Banner Image</label>
+                <div id="drop-zone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:28px 16px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--bg);">
+                  <svg width="32" height="32" fill="none" stroke="var(--muted)" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 10px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <p id="drop-label" style="font-size:.82rem;color:var(--muted);">Click or drag &amp; drop image here</p>
+                  <p style="font-size:.72rem;color:var(--muted);margin-top:4px;">JPG, PNG, WEBP — max 5MB</p>
+                </div>
+                <input type="file" id="sale-image" accept="image/*" style="display:none;" required />
+              </div>
+              <div id="img-preview-wrap" style="display:none;margin-bottom:16px;">
+                <img id="img-preview" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;" />
+              </div>
+              <button type="submit" class="export-btn" style="width:100%;justify-content:center;padding:13px;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Sale Item
+              </button>
+              <div id="sale-error" style="display:none;color:var(--danger);font-size:.82rem;margin-top:10px;"></div>
+            </form>
+          </div>
+
+          <!-- Sale Items List -->
+          <div class="table-card" style="overflow:hidden;">
+            <div class="table-header">
+              <h3>Published &amp; Draft Items</h3>
+              <a href="/weekly-sales" target="_blank" class="export-btn">View Page ↗</a>
+            </div>
+            <div id="sales-list"><div class="spinner"></div></div>
+          </div>
         </div>
       </div>
 
@@ -489,7 +547,7 @@
   });
 
   // ── Nav ──
-  const pages = { dashboard: 'Dashboard', subscribers: 'Subscribers', contacts: 'Contact Messages' };
+  const pages = { dashboard: 'Dashboard', subscribers: 'Subscribers', contacts: 'Contact Messages', sales: 'Weekly Sales' };
   document.querySelectorAll('.nav-item').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -500,6 +558,7 @@
       document.getElementById('topbar-title').textContent = pages[page];
       if (page === 'subscribers') loadSubscribers();
       if (page === 'contacts')    loadContacts();
+      if (page === 'sales')       loadSales();
     });
   });
 
@@ -652,6 +711,124 @@
   document.getElementById('con-search').addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
     renderConsTable(consData.filter(r => r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)));
+  });
+
+  // ── Weekly Sales ──
+  let salesData = [];
+
+  async function loadSales() {
+    const wrap = document.getElementById('sales-list');
+    wrap.innerHTML = '<div class="spinner"></div>';
+    salesData = await apiFetch('/api/admin/sales');
+    renderSalesList();
+  }
+
+  function renderSalesList() {
+    const wrap = document.getElementById('sales-list');
+    if (!salesData.length) {
+      wrap.innerHTML = '<div class="empty-state"><svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>No sale items yet.</div>';
+      return;
+    }
+    wrap.innerHTML = `<table>
+      <thead><tr><th>Preview</th><th>Title</th><th>%&nbsp;Off</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        ${salesData.map(r => `
+          <tr>
+            <td><img src="/api/sales/image/${r.id}" style="width:80px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" /></td>
+            <td><strong>${esc(r.title)}</strong>${r.note ? `<div class="td-muted" style="font-size:.75rem;">${esc(r.note)}</div>` : ''}</td>
+            <td><span style="font-size:1.1rem;font-weight:700;color:var(--danger);">${r.percentage}%</span></td>
+            <td>
+              <button onclick="toggleSale(${r.id})" style="padding:5px 12px;border-radius:99px;border:none;cursor:pointer;font-size:.75rem;font-weight:700;font-family:'Inter',sans-serif;transition:all .2s;background:${r.published ? '#dcfce7' : 'var(--border)'};color:${r.published ? 'var(--green)' : 'var(--muted)'};">
+                ${r.published ? '● Published' : '○ Draft'}
+              </button>
+            </td>
+            <td class="td-muted">${formatDate(r.created_at)}</td>
+            <td><button class="delete-btn" onclick="deleteSale(${r.id})">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              Delete
+            </button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  async function toggleSale(id) {
+    const data = await apiFetch('/api/admin/sales/' + id + '/toggle', { method: 'PATCH' });
+    const item = salesData.find(r => r.id === id);
+    if (item) item.published = data.published;
+    renderSalesList();
+    showToast(data.published ? 'Item published!' : 'Item set to draft');
+  }
+
+  async function deleteSale(id) {
+    if (!confirm('Delete this sale item?')) return;
+    await apiFetch('/api/admin/sales/' + id, { method: 'DELETE' });
+    salesData = salesData.filter(r => r.id !== id);
+    renderSalesList();
+    showToast('Sale item deleted');
+  }
+
+  // Drop zone
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('sale-image');
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--blue)'; });
+  dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--border)'; });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = 'var(--border)';
+    const file = e.dataTransfer.files[0];
+    if (file) setPreview(file);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) setPreview(fileInput.files[0]); });
+
+  function setPreview(file) {
+    // Sync to the actual file input
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    fileInput.files = dt.files;
+    document.getElementById('drop-label').textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      document.getElementById('img-preview').src = e.target.result;
+      document.getElementById('img-preview-wrap').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Sale form submit
+  document.getElementById('sale-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const errEl = document.getElementById('sale-error');
+    errEl.style.display = 'none';
+    btn.textContent = 'Uploading...';
+    btn.disabled = true;
+    const formData = new FormData();
+    formData.append('title',      document.getElementById('sale-title').value);
+    formData.append('percentage', document.getElementById('sale-pct').value);
+    formData.append('note',       document.getElementById('sale-note').value);
+    formData.append('image',      fileInput.files[0]);
+    try {
+      const res = await fetch('/api/admin/sales', {
+        method: 'POST',
+        headers: { 'x-admin-secret': SECRET },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      salesData.unshift(data);
+      renderSalesList();
+      e.target.reset();
+      document.getElementById('img-preview-wrap').style.display = 'none';
+      document.getElementById('drop-label').textContent = 'Click or drag & drop image here';
+      showToast('Sale item added! Toggle to publish.');
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+    btn.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Sale Item';
+    btn.disabled = false;
   });
 
   function esc(str) {
