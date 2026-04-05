@@ -31,11 +31,15 @@ async function initDB() {
         title       VARCHAR(255) NOT NULL,
         percentage  INTEGER NOT NULL,
         note        VARCHAR(255),
-        image_data  TEXT NOT NULL,
-        image_type  VARCHAR(50) NOT NULL,
+        image_data  TEXT,
+        image_type  VARCHAR(50),
+        image_url   TEXT,
         published   BOOLEAN DEFAULT false,
         created_at  TIMESTAMPTZ DEFAULT NOW()
       );
+      -- add image_url column if upgrading existing table
+      ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS image_url TEXT;
+      ALTER TABLE sale_items ALTER COLUMN image_data DROP NOT NULL;
     `);
     console.log('✅ Database tables ready');
   } finally {
