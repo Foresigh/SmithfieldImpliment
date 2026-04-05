@@ -282,6 +282,63 @@
       margin-top: 4px;
     }
 
+    /* ── Weekly Sales Preview ── */
+    .sales-preview { padding: 80px 0; background: var(--white); }
+    .sales-preview-header {
+      display: flex; align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 40px; gap: 24px; flex-wrap: wrap;
+    }
+    .sales-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .sp-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-100);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .sp-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+    .sp-card-media {
+      position: relative; width: 100%;
+      aspect-ratio: 16 / 7; overflow: hidden;
+    }
+    .sp-card-img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center; display: block;
+    }
+    .sp-pct-badge {
+      position: absolute; top: 10px; right: 10px;
+      background: #dc2626; color: #fff;
+      font-family: var(--font-serif);
+      font-size: 1.4rem; font-weight: 900; line-height: 1;
+      padding: 7px 11px; border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,.35);
+    }
+    .sp-pct-badge span {
+      display: block; font-size: .58rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      opacity: .9; margin-top: 2px; font-family: var(--font-sans);
+    }
+    .sp-card-body { padding: 12px 14px; }
+    .sp-card-body h3 { font-size: .875rem; font-weight: 700; }
+    .sp-card-body p  { font-size: .72rem; color: var(--gray-500); margin-top: 2px; }
+    .sales-preview-empty {
+      grid-column: 1/-1; text-align: center;
+      padding: 48px; color: var(--gray-500); font-size: .9rem;
+    }
+    @media (max-width: 768px) {
+      .sales-preview-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 480px) {
+      .sales-preview-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── Departments ── */
     .departments { padding: 96px 0; background: var(--gray-900); }
     .departments-header {
@@ -919,6 +976,25 @@
     </div>
   </section>
 
+  <!-- ── WEEKLY SALES PREVIEW ── -->
+  <section class="sales-preview">
+    <div class="container">
+      <div class="sales-preview-header reveal">
+        <div>
+          <span class="section-label">Updated Every Week</span>
+          <h2 class="section-title">This Week's <span>Sales</span></h2>
+        </div>
+        <a href="/weekly-sales" class="btn btn-primary">
+          See All Sales
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="sales-preview-grid reveal" id="homepage-sales">
+        <div class="sales-preview-empty">Loading this week's deals...</div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── DEPARTMENTS ── -->
   <section class="departments" id="departments">
     <div class="container">
@@ -1328,6 +1404,33 @@
         msg.style.color = '#dc2626';
       }
     }
+
+    // ── Homepage sales preview ──
+    (async function loadHomepageSales() {
+      const grid = document.getElementById('homepage-sales');
+      try {
+        const res   = await fetch('/api/sales');
+        const items = await res.json();
+        const top3  = items.slice(0, 3);
+        if (!top3.length) {
+          grid.innerHTML = '<div class="sales-preview-empty">No sales this week — check back soon!</div>';
+          return;
+        }
+        grid.innerHTML = top3.map(item => `
+          <a href="/weekly-sales" class="sp-card">
+            <div class="sp-card-media">
+              <img class="sp-card-img" src="/api/sales/image/${item.id}" alt="${item.title.replace(/"/g,'')}" loading="lazy" />
+              <div class="sp-pct-badge">${item.percentage}%<span>OFF</span></div>
+            </div>
+            <div class="sp-card-body">
+              <h3>${item.title.replace(/</g,'&lt;')}</h3>
+              ${item.note ? `<p>*${item.note.replace(/</g,'&lt;')}</p>` : ''}
+            </div>
+          </a>`).join('');
+      } catch {
+        grid.innerHTML = '<div class="sales-preview-empty">Could not load sales. <a href="/weekly-sales" style="color:var(--blue)">View all sales →</a></div>';
+      }
+    })();
 
     // ── Sticky navbar shadow on scroll ──
     const navbar = document.querySelector('.navbar');
