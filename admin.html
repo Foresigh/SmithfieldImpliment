@@ -439,18 +439,18 @@
                   <input type="file" id="sale-image" accept="image/*" style="display:none;" />
                 </div>
                 <div id="img-url-panel" style="display:none;">
-                  <input type="url" class="form-input" id="sale-image-url" placeholder="https://example.com/banner.jpg" />
-                  <p style="font-size:.72rem;color:var(--muted);margin-top:6px;">Paste a direct link to the image (must end in .jpg, .png, .webp, etc.)</p>
+                  <input type="text" class="form-input" id="sale-image-url" placeholder="https://example.com/banner.jpg" />
+                  <p style="font-size:.72rem;color:var(--muted);margin-top:6px;">Paste a direct link to the image</p>
                 </div>
               </div>
               <div id="img-preview-wrap" style="display:none;margin-bottom:16px;">
                 <img id="img-preview" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;" />
               </div>
+              <div id="sale-error" style="display:none;color:var(--danger);font-size:.82rem;margin-bottom:10px;background:var(--danger-bg);padding:10px 12px;border-radius:8px;border:1px solid #fecaca;"></div>
               <button type="submit" class="export-btn" style="width:100%;justify-content:center;padding:13px;">
                 <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add Sale Item
               </button>
-              <div id="sale-error" style="display:none;color:var(--danger);font-size:.82rem;margin-top:10px;"></div>
             </form>
           </div>
 
@@ -515,7 +515,7 @@
             <input type="file" id="edit-sale-image" accept="image/*" style="display:none;" />
           </div>
           <div id="edit-img-url-panel" style="display:none;">
-            <input type="url" class="form-input" id="edit-sale-image-url" placeholder="https://example.com/banner.jpg" />
+            <input type="text" class="form-input" id="edit-sale-image-url" placeholder="https://example.com/banner.jpg" />
             <p style="font-size:.72rem;color:var(--muted);margin-top:6px;">Paste a direct link to the image</p>
           </div>
         </div>
@@ -973,6 +973,24 @@
     errEl.style.display = 'none';
     btn.textContent = 'Uploading...'; btn.disabled = true;
 
+    const imageUrl = document.getElementById('sale-image-url').value.trim();
+
+    // client-side validation
+    if (addImageMode === 'upload' && !fileInput.files[0]) {
+      errEl.textContent = 'Please select an image file to upload.';
+      errEl.style.display = 'block';
+      btn.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Sale Item';
+      btn.disabled = false;
+      return;
+    }
+    if (addImageMode === 'url' && !imageUrl) {
+      errEl.textContent = 'Please enter an image URL.';
+      errEl.style.display = 'block';
+      btn.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Sale Item';
+      btn.disabled = false;
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title',      document.getElementById('sale-title').value);
     formData.append('percentage', document.getElementById('sale-pct').value);
@@ -980,7 +998,7 @@
     if (addImageMode === 'upload' && fileInput.files[0]) {
       formData.append('image', fileInput.files[0]);
     } else if (addImageMode === 'url') {
-      formData.append('image_url', document.getElementById('sale-image-url').value);
+      formData.append('image_url', imageUrl);
     }
 
     try {
