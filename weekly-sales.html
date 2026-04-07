@@ -194,6 +194,89 @@
     @media (max-width: 480px) {
       .sales-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Sale CTA Modal ── */
+    .sale-card { cursor: pointer; }
+    .cta-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .22s ease;
+    }
+    .cta-overlay.open { opacity: 1; pointer-events: all; }
+    .cta-modal {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%; max-width: 460px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+      transform: translateY(16px) scale(.97);
+      transition: transform .25s ease;
+    }
+    .cta-overlay.open .cta-modal { transform: none; }
+    .cta-modal-img {
+      width: 100%; aspect-ratio: 16/6;
+      object-fit: cover; display: block;
+    }
+    .cta-modal-body { padding: 28px 28px 24px; }
+    .cta-deal-label {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fee2e2; color: #dc2626;
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 99px;
+      margin-bottom: 12px;
+    }
+    .cta-title { font-family: var(--font-serif); font-size: 1.5rem; font-weight: 900; line-height: 1.2; margin-bottom: 4px; }
+    .cta-note  { font-size: .78rem; color: var(--gray-500); margin-bottom: 20px; }
+    .cta-divider { border: none; border-top: 1px solid #f1f5f9; margin: 0 0 20px; }
+    .cta-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+    .cta-step  { display: flex; align-items: flex-start; gap: 12px; }
+    .cta-step-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--blue-light);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .cta-step-icon svg { color: var(--blue); }
+    .cta-step-text strong { display: block; font-size: .875rem; font-weight: 700; }
+    .cta-step-text span   { font-size: .78rem; color: var(--gray-500); }
+    .cta-actions { display: flex; gap: 10px; }
+    .cta-btn-primary {
+      flex: 1; padding: 13px 16px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 10px;
+      font-size: .875rem; font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer; transition: background .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none;
+    }
+    .cta-btn-primary:hover { background: var(--blue-dark); }
+    .cta-btn-secondary {
+      flex: 1; padding: 13px 16px;
+      background: var(--gold); color: var(--gray-900);
+      border: none; border-radius: 10px;
+      font-size: .875rem; font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer; transition: background .2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      text-decoration: none;
+    }
+    .cta-btn-secondary:hover { background: var(--gold-dark); }
+    .cta-close-btn {
+      position: absolute; top: 16px; right: 16px;
+      width: 32px; height: 32px;
+      background: rgba(0,0,0,.4); border: none;
+      border-radius: 50%; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; transition: background .2s;
+    }
+    .cta-close-btn:hover { background: rgba(0,0,0,.6); }
+    .cta-modal-img-wrap { position: relative; }
   </style>
 </head>
 <body>
@@ -241,6 +324,66 @@
     </form>
   </div>
 
+  <!-- CTA Modal -->
+  <div class="cta-overlay" id="cta-overlay">
+    <div class="cta-modal" id="cta-modal">
+      <div class="cta-modal-img-wrap">
+        <img class="cta-modal-img" id="cta-img" src="" alt="" />
+        <button class="cta-close-btn" id="cta-close">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="cta-modal-body">
+        <div class="cta-deal-label">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>
+          <span id="cta-pct-label"></span>
+        </div>
+        <div class="cta-title" id="cta-title"></div>
+        <div class="cta-note" id="cta-note"></div>
+        <hr class="cta-divider" />
+        <div class="cta-steps">
+          <div class="cta-step">
+            <div class="cta-step-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="cta-step-text">
+              <strong>Come in to claim this deal</strong>
+              <span>Visit us at 96 N Main St, Smithfield, UT 84335</span>
+            </div>
+          </div>
+          <div class="cta-step">
+            <div class="cta-step-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>
+            </div>
+            <div class="cta-step-text">
+              <strong>Mon – Sat &nbsp;8:00 am – 6:00 pm</strong>
+              <span>Closed Sundays</span>
+            </div>
+          </div>
+          <div class="cta-step">
+            <div class="cta-step-icon">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16l.42.92z"/></svg>
+            </div>
+            <div class="cta-step-text">
+              <strong>Call ahead to check availability</strong>
+              <span>(435) 563-5517</span>
+            </div>
+          </div>
+        </div>
+        <div class="cta-actions">
+          <a href="https://maps.google.com/?q=96+N+Main+St,+Smithfield,+UT+84335" target="_blank" class="cta-btn-primary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Get Directions
+          </a>
+          <a href="tel:4355635517" class="cta-btn-secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16l.42.92z"/></svg>
+            Call Us
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer class="footer">
     &copy; 2026 <a href="/">Smithfield Implement Co.</a> — Smithfield, Utah
   </footer>
@@ -261,7 +404,7 @@
           return;
         }
         container.innerHTML = `<div class="sales-grid">${items.map(item => `
-          <div class="sale-card">
+          <div class="sale-card" onclick="openCTA(${item.id},'${esc(item.title)}','${item.percentage}','${esc(item.note||'')}')">
             <div class="sale-card-media">
               <img class="sale-card-img" src="/api/sales/image/${item.id}" alt="${esc(item.title)}" loading="lazy" />
               <div class="sale-pct-badge">
@@ -303,8 +446,30 @@
     }
 
     function esc(str) {
-      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/'/g,'&#39;').replace(/"/g,'&quot;');
     }
+
+    // ── CTA Modal ──
+    const overlay = document.getElementById('cta-overlay');
+
+    function openCTA(id, title, pct, note) {
+      document.getElementById('cta-img').src          = '/api/sales/image/' + id;
+      document.getElementById('cta-img').alt          = title;
+      document.getElementById('cta-title').textContent = title;
+      document.getElementById('cta-pct-label').textContent = pct + '% OFF This Week';
+      document.getElementById('cta-note').textContent  = note ? '*' + note : '';
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCTA() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('cta-close').addEventListener('click', closeCTA);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCTA(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCTA(); });
 
     loadSales();
   </script>
