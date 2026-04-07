@@ -180,7 +180,7 @@
     /* ── Hero ── */
     .hero {
       position: relative;
-      min-height: 92vh;
+      min-height: 72vh;
       display: flex;
       align-items: center;
       overflow: hidden;
@@ -189,9 +189,10 @@
     .hero-bg {
       position: absolute;
       inset: 0;
-      background-image:
-        radial-gradient(ellipse at 70% 50%, rgba(255,179,2,.18) 0%, transparent 60%),
-        radial-gradient(ellipse at 20% 80%, rgba(255,255,255,.06) 0%, transparent 50%);
+      background-image: url('SMITHFIELD-IMP-EXTERIOR.webp');
+      background-size: cover;
+      background-position: center 40%;
+      opacity: .22;
     }
     .hero-pattern {
       position: absolute;
@@ -850,7 +851,7 @@
     @media (max-width: 768px) {
       .nav-links, .nav-social, .nav-actions .btn { display: none; }
       .hamburger { display: flex; }
-      .hero { min-height: 100svh; }
+      .hero { min-height: 80svh; }
       .hero-stats-inner { flex-wrap: wrap; }
       .stat { flex: 1 1 50%; }
       .dept-grid { grid-template-columns: repeat(4, 1fr); }
