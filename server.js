@@ -241,30 +241,43 @@ app.post('/api/admin/sales', adminAuth, upload.single('image'), async (req, res)
 
 // ── PUT /api/admin/sales/:id (edit) ──────────────────────────
 app.put('/api/admin/sales/:id', adminAuth, upload.single('image'), async (req, res) => {
-  const { title, percentage, note, image_url } = req.body;
-  if (!title || !percentage) {
-    return res.status(400).json({ error: 'Title and percentage are required.' });
+  try {
+    const { title, percentage, note, image_url } = req.body;
+    console.log('PUT /api/admin/sales/:id — file:', req.file ? req.file.originalname + ' ' + req.file.size + 'b' : 'none', '| image_url:', image_url || 'none');
+    if (!title || !percentage) {
+      return res.status(400).json({ error: 'Title and percentage are required.' });
+    }
+    let query, params;
+    if (req.file) {
+      // new uploaded file — clear image_url
+      let imageData, imageType;
+      try {
+        const { buf, mime } = await processImage(req.file);
+        imageData = buf.toString('base64');
+        imageType = mime;
+      } catch (sharpErr) {
+        console.error('processImage failed, storing raw:', sharpErr.message);
+        imageData = req.file.buffer.toString('base64');
+        imageType = req.file.mimetype;
+      }
+      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=$4, image_type=$5, image_url=NULL WHERE id=$6 RETURNING id, title, percentage, note, published, created_at';
+      params = [title.trim(), parseInt(percentage), note?.trim() || null, imageData, imageType, req.params.id];
+    } else if (image_url && image_url.trim()) {
+      // new external URL — clear uploaded image
+      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=NULL, image_type=NULL, image_url=$4 WHERE id=$5 RETURNING id, title, percentage, note, published, created_at';
+      params = [title.trim(), parseInt(percentage), note?.trim() || null, image_url.trim(), req.params.id];
+    } else {
+      // no image change
+      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3 WHERE id=$4 RETURNING id, title, percentage, note, published, created_at';
+      params = [title.trim(), parseInt(percentage), note?.trim() || null, req.params.id];
+    }
+    const { rows } = await pool.query(query, params);
+    if (!rows.length) return res.status(404).json({ error: 'Not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error('PUT sales error:', err.message);
+    res.status(500).json({ error: err.message });
   }
-  let query, params;
-  if (req.file) {
-    // new uploaded file — clear image_url
-    const { buf, mime } = await processImage(req.file);
-    const imageData = buf.toString('base64');
-    const imageType = mime;
-    query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=$4, image_type=$5, image_url=NULL WHERE id=$6 RETURNING id, title, percentage, note, published, created_at';
-    params = [title.trim(), parseInt(percentage), note?.trim() || null, imageData, imageType, req.params.id];
-  } else if (image_url && image_url.trim()) {
-    // new external URL — clear uploaded image
-    query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=NULL, image_type=NULL, image_url=$4 WHERE id=$5 RETURNING id, title, percentage, note, published, created_at';
-    params = [title.trim(), parseInt(percentage), note?.trim() || null, image_url.trim(), req.params.id];
-  } else {
-    // no image change
-    query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3 WHERE id=$4 RETURNING id, title, percentage, note, published, created_at';
-    params = [title.trim(), parseInt(percentage), note?.trim() || null, req.params.id];
-  }
-  const { rows } = await pool.query(query, params);
-  if (!rows.length) return res.status(404).json({ error: 'Not found' });
-  res.json(rows[0]);
 });
 
 // ── PATCH /api/admin/sales/:id/toggle (publish/unpublish) ────
