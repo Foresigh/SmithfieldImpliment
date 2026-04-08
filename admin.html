@@ -135,24 +135,36 @@
       .login-left { display: none; }
       .login-right { padding: 32px 20px; min-height: 100vh; }
     }
-    .form-group  { margin-bottom: 18px; }
-    .form-label  { display: block; font-size: .75rem; font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .08em; }
+    /* ── App form base (used in sales, etc.) ── */
+    .form-group  { margin-bottom: 16px; }
+    .form-label  { display: block; font-size: .8rem; font-weight: 600; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .form-input  {
+      width: 100%; padding: 12px 14px;
+      background: var(--white);
+      border: 2px solid var(--border); border-radius: var(--radius);
+      font-size: .9rem; font-family: 'Inter', sans-serif;
+      color: var(--text);
+      outline: none; transition: border-color .2s;
+    }
+    .form-input::placeholder { color: #aab; }
+    .form-input:focus { border-color: var(--blue); }
+
+    /* ── Login-specific overrides (scoped to .login-right) ── */
+    .login-right .form-group  { margin-bottom: 18px; }
+    .login-right .form-label  { font-size: .75rem; color: rgba(255,255,255,.55); letter-spacing: .08em; }
     .input-wrap  { position: relative; }
     .input-icon  {
       position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
       color: rgba(255,255,255,.3); pointer-events: none;
     }
-    .form-input  {
-      width: 100%; padding: 13px 14px 13px 42px;
+    .login-right .form-input  {
+      padding: 13px 14px 13px 42px;
       background: rgba(255,255,255,.07);
       border: 1.5px solid rgba(255,255,255,.12);
-      border-radius: var(--radius);
-      font-size: .9rem; font-family: 'Inter', sans-serif;
       color: #fff;
-      outline: none; transition: border-color .2s, background .2s;
     }
-    .form-input::placeholder { color: rgba(255,255,255,.25); }
-    .form-input:focus { border-color: rgba(18,121,190,.8); background: rgba(255,255,255,.1); }
+    .login-right .form-input::placeholder { color: rgba(255,255,255,.25); }
+    .login-right .form-input:focus { border-color: rgba(18,121,190,.8); background: rgba(255,255,255,.1); }
     .login-btn {
       width: 100%; padding: 14px;
       background: linear-gradient(135deg, #1279BE 0%, #0a3d6b 100%);
