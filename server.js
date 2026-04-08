@@ -257,8 +257,7 @@ app.get('/sale/:id', async (req, res) => {
   );
   if (!rows.length) return res.redirect('/weekly-sales');
   const item  = rows[0];
-  // Use explicit SITE_URL env var if set, otherwise derive from headers
-  const base = (process.env.SITE_URL || `${req.get('x-forwarded-proto') || req.protocol}://${req.get('host')}`).replace(/\/$/, '');
+  const base = (process.env.SITE_URL || 'https://smithfieldimpliment-production.up.railway.app').replace(/\/$/, '');
   const pageUrl = `${base}/sale/${item.id}`;
   // Use the external image_url directly if available (avoids redirect for FB crawler)
   const imgUrl  = item.image_url || `${base}/api/sales/image/${item.id}`;
