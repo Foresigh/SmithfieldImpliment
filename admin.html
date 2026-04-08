@@ -814,7 +814,9 @@
     document.getElementById('edit-drop-label').textContent = 'Click or drag & drop new image';
     document.getElementById('edit-img-preview-wrap').style.display = 'none';
     document.getElementById('edit-sale-error').style.display = 'none';
+    document.getElementById('edit-sale-image-url').value = '';
     editFileInput.value = '';
+    switchEditImageTab('upload');
     editModal.classList.add('open');
   }
 
