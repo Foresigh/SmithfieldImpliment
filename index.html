@@ -609,35 +609,49 @@
     }
     .award-badge-label { font-size: .72rem; color: rgba(255,255,255,.8); text-transform: uppercase; letter-spacing: .08em; margin-top: 4px; }
 
-    /* ── Weekly Sales CTA ── */
-    .sales-cta {
-      padding: 96px 0;
-      background: var(--off-white);
+    /* ── Subscribe Strip ── */
+    .subscribe-strip {
+      background: linear-gradient(135deg, #0a3d6b 0%, #1279BE 100%);
+      padding: 56px 0;
     }
-    .sales-cta-inner {
-      display: grid;
-      grid-template-columns: 3fr 2fr;
+    .subscribe-strip-inner {
+      display: flex;
+      align-items: center;
       gap: 48px;
-      align-items: start;
+      flex-wrap: wrap;
     }
-    .sales-cta-content .section-title { margin-bottom: 20px; }
-    .sales-cta-content p { color: var(--gray-500); font-size: 1.05rem; line-height: 1.8; margin-bottom: 32px; }
-    .sales-cta-actions { display: flex; gap: 14px; flex-wrap: wrap; }
-    .sales-card {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: var(--shadow-lg);
-      border: 1px solid var(--gray-100);
-    }
-    .sales-card-title {
+    .subscribe-strip-text { flex: 1; min-width: 220px; }
+    .subscribe-strip-text h3 {
       font-family: var(--font-serif);
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 8px;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
     }
-    .sales-card-sub { color: var(--gray-500); font-size: .875rem; margin-bottom: 28px; }
-    .email-form { display: flex; flex-direction: column; gap: 12px; }
+    .subscribe-strip-text p { color: rgba(255,255,255,.75); font-size: .95rem; }
+    .subscribe-strip-form {
+      display: flex; gap: 10px; flex-wrap: wrap; flex: 2; min-width: 280px;
+    }
+    .subscribe-strip-form .email-input {
+      flex: 1; min-width: 140px;
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.25);
+      color: #fff;
+    }
+    .subscribe-strip-form .email-input::placeholder { color: rgba(255,255,255,.6); }
+    .subscribe-strip-form .email-input:focus { border-color: var(--gold); background: rgba(255,255,255,.18); }
+    .subscribe-strip-form .email-submit { white-space: nowrap; background: var(--gold); color: #000; }
+    .subscribe-strip-form .email-submit:hover { background: var(--gold-dark); }
+    .email-input {
+      padding: 14px 18px;
+      border: 2px solid var(--gray-300);
+      border-radius: 8px;
+      font-size: .9rem;
+      font-family: var(--font-sans);
+      transition: var(--transition);
+      outline: none;
+      color: var(--gray-900);
+    }
     .email-input {
       padding: 14px 18px;
       border: 2px solid var(--gray-300);
@@ -1460,29 +1474,19 @@
     </div>
   </section>
 
-  <!-- ── WEEKLY SALES + SUBSCRIBE ── -->
-  <section class="sales-cta" id="sales">
+  <!-- ── SUBSCRIBE STRIP ── -->
+  <section class="subscribe-strip" id="subscribe">
     <div class="container">
-      <div class="sales-cta-inner">
-        <div class="sales-cta-content reveal">
-          <span class="section-label">This Week's Deals</span>
-          <h2 class="section-title">Weekly <span>Sales</span> &amp; Specials</h2>
-          <div class="sales-preview-grid" id="sales-cta-grid" style="margin-bottom:24px;"></div>
-          <a href="/weekly-sales" class="btn btn-blue">
-            View All Sales
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+      <div class="subscribe-strip-inner reveal">
+        <div class="subscribe-strip-text">
+          <h3>Get Weekly Deals in Your Inbox</h3>
+          <p>New sales every week. No spam, ever.</p>
         </div>
-        <div class="sales-card reveal" id="subscribe">
-          <div class="sales-card-title">Stay in the Loop</div>
-          <div class="sales-card-sub">Get weekly sales &amp; product updates by email</div>
-          <form class="email-form" onsubmit="handleSubscribe(event)">
-            <input type="text" class="email-input" placeholder="Your full name" required />
-            <input type="email" class="email-input" placeholder="your@email.com" required />
-            <button type="submit" class="email-submit">Subscribe for Free</button>
-            <p class="email-fine">No spam, ever. Unsubscribe anytime.</p>
-          </form>
-        </div>
+        <form class="subscribe-strip-form" onsubmit="handleSubscribe(event)">
+          <input type="text" class="email-input" placeholder="Your name" required />
+          <input type="email" class="email-input" placeholder="your@email.com" required />
+          <button type="submit" class="email-submit">Subscribe Free</button>
+        </form>
       </div>
     </div>
   </section>
@@ -1652,13 +1656,16 @@
 
     // ── Homepage sales preview ──
     (async function loadHomepageSales() {
-      const grid    = document.getElementById('homepage-sales');
-      const ctaGrid = document.getElementById('sales-cta-grid');
+      const grid = document.getElementById('homepage-sales');
       try {
         const res   = await fetch('/api/sales', { cache: 'no-store' });
         const items = await res.json();
         const top4  = items.slice(0, 4);
-        const cardHtml = top4.map(item => `
+        if (!top4.length) {
+          grid.innerHTML = '<div class="sales-preview-empty">No sales this week. Check back soon!</div>';
+          return;
+        }
+        grid.innerHTML = top4.map(item => `
           <div class="sp-card" style="cursor:pointer;"
             data-id="${item.id}"
             data-title="${item.title.replace(/"/g,'&quot;')}"
@@ -1673,25 +1680,15 @@
               ${item.note ? `<p>*${item.note.replace(/</g,'&lt;')}</p>` : ''}
             </div>
           </div>`).join('');
-        if (!top4.length) {
-          const empty = '<div class="sales-preview-empty">No sales this week. Check back soon!</div>';
-          grid.innerHTML = empty;
-          ctaGrid.innerHTML = empty;
-          return;
-        }
-        grid.innerHTML    = cardHtml;
-        ctaGrid.innerHTML = cardHtml;
       } catch {
-        const err = '<div class="sales-preview-empty">Could not load sales. <a href="/weekly-sales" style="color:var(--blue)">View all</a></div>';
-        grid.innerHTML    = err;
-        ctaGrid.innerHTML = err;
+        grid.innerHTML = '<div class="sales-preview-empty">Could not load sales. <a href="/weekly-sales" style="color:var(--blue)">View all</a></div>';
       }
     })();
 
     // ── Homepage sale card CTA modal ──
     // Uses event delegation so it works even after async cards are injected
     document.addEventListener('click', function(e) {
-      const card = e.target.closest('#homepage-sales .sp-card, #sales-cta-grid .sp-card');
+      const card = e.target.closest('#homepage-sales .sp-card');
       if (!card) return;
       e.preventDefault();
 
