@@ -1604,7 +1604,7 @@
       const itemUrl   = window.location.origin + '/sale/' + id;
       const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
       const shareUrl  = encodeURIComponent(itemUrl);
-      document.getElementById('hp-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl;
+      document.getElementById('hp-share-fb').dataset.fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl;
       document.getElementById('hp-share-sms').href = 'sms:?body=' + shareText + '%20' + shareUrl;
       document.getElementById('hp-cta-overlay').dataset.shareUrl = itemUrl;
 
@@ -1625,6 +1625,12 @@
       });
       document.getElementById('hp-cta-overlay').addEventListener('click', function(e) {
         if (e.target === this) hpCloseModal();
+      });
+      document.getElementById('hp-share-fb').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const url = this.dataset.fbUrl;
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
       });
       document.getElementById('hp-share-copy').addEventListener('click', function(e) {
         e.stopPropagation();
@@ -1709,7 +1715,7 @@
         </div>
         <div class="cta-share">
           <span class="cta-share-label">Share deal:</span>
-          <a id="hp-share-fb" href="#" target="_blank" class="cta-share-btn fb">
+          <a id="hp-share-fb" href="#" class="cta-share-btn fb">
             <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             Facebook
           </a>
