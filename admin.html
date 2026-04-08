@@ -33,38 +33,94 @@
     /* ── Login Screen ── */
     #login-screen {
       min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .login-left {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px;
+      background: linear-gradient(135deg, #0a3d6b 0%, #1279BE 100%);
+    }
+    .login-left-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('/SMITHFIELD-IMP-EXTERIOR.webp');
+      background-size: cover;
+      background-position: center 40%;
+      opacity: .18;
+    }
+    .login-left-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(10,29,61,.9) 0%, rgba(18,121,190,.4) 100%);
+    }
+    .login-left-content { position: relative; z-index: 2; }
+    .login-left-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,179,2,.2); border: 1px solid rgba(255,179,2,.4);
+      color: #FFB302; padding: 6px 14px; border-radius: 99px;
+      font-size: .72rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .login-left-title {
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 800; color: #fff; line-height: 1.1;
+      margin-bottom: 16px;
+      font-family: Georgia, serif;
+    }
+    .login-left-title span { color: #FFB302; display: block; }
+    .login-left-desc { color: rgba(255,255,255,.75); font-size: .9rem; line-height: 1.7; margin-bottom: 32px; max-width: 380px; }
+    .login-left-stats { display: flex; gap: 32px; }
+    .login-left-stat-num { font-size: 1.6rem; font-weight: 800; color: #FFB302; line-height: 1; }
+    .login-left-stat-lbl { font-size: .7rem; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+    .login-badges { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+    .login-badge-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: .75rem; color: rgba(255,255,255,.8); font-weight: 500;
+    }
+    .login-badge-item svg { color: #FFB302; flex-shrink: 0; }
+
+    .login-right {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
-      background: linear-gradient(135deg, #0a3d6b 0%, #1279BE 100%);
+      padding: 48px 40px;
+      background: var(--bg);
     }
     .login-card {
       background: var(--white);
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 48px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 24px 64px rgba(0,0,0,.2);
+      box-shadow: 0 8px 40px rgba(0,0,0,.1);
     }
     .login-logo {
-      text-align: center;
       margin-bottom: 32px;
     }
     .login-logo strong {
       display: block;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: 700;
       color: var(--blue);
     }
     .login-logo span {
-      font-size: .75rem;
+      font-size: .72rem;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: .08em;
     }
-    .login-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; }
+    .login-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
     .login-sub   { font-size: .875rem; color: var(--muted); margin-bottom: 28px; }
+    @media (max-width: 768px) {
+      #login-screen { grid-template-columns: 1fr; }
+      .login-left { display: none; }
+      .login-right { padding: 32px 20px; }
+    }
     .form-group  { margin-bottom: 16px; }
     .form-label  { display: block; font-size: .8rem; font-weight: 600; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
     .form-input  {
@@ -376,26 +432,71 @@
 
 <!-- ── LOGIN ── -->
 <div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <strong>Smithfield Implement Co.</strong>
-      <span>Admin Dashboard</span>
+
+  <!-- Left panel — hero / brand -->
+  <div class="login-left">
+    <div class="login-left-bg"></div>
+    <div class="login-left-overlay"></div>
+    <div class="login-left-content">
+      <div class="login-left-badge">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Cache Valley's Most Trusted Store
+      </div>
+      <h1 class="login-left-title">
+        Smithfield<br/>Implement Co.<span>Since 1914.</span>
+      </h1>
+      <p class="login-left-desc">Your local source for hardware, western wear, fencing, work boots, farm supplies, and more — serving Cache Valley for over 110 years.</p>
+      <div class="login-left-stats">
+        <div>
+          <div class="login-left-stat-num">110+</div>
+          <div class="login-left-stat-lbl">Years Serving</div>
+        </div>
+        <div>
+          <div class="login-left-stat-num">14</div>
+          <div class="login-left-stat-lbl">Departments</div>
+        </div>
+        <div>
+          <div class="login-left-stat-num">4x</div>
+          <div class="login-left-stat-lbl">Award Winner</div>
+        </div>
+      </div>
+      <div class="login-badges">
+        <div class="login-badge-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Best of Northern Utah 2022–2025
+        </div>
+        <div class="login-badge-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Family-owned since 1914
+        </div>
+      </div>
     </div>
-    <h2 class="login-title">Sign in</h2>
-    <p class="login-sub">Enter your admin credentials to continue.</p>
-    <form id="login-form">
-      <div class="form-group">
-        <label class="form-label" for="username-input">Username</label>
-        <input id="username-input" type="text" class="form-input" placeholder="admin" required autocomplete="username" />
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="password-input">Password</label>
-        <input id="password-input" type="password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
-      </div>
-      <button type="submit" class="login-btn">Sign In</button>
-      <div class="login-error" id="login-error">Invalid username or password.</div>
-    </form>
   </div>
+
+  <!-- Right panel — login form -->
+  <div class="login-right">
+    <div class="login-card">
+      <div class="login-logo">
+        <strong>Smithfield Implement Co.</strong>
+        <span>Admin Dashboard</span>
+      </div>
+      <h2 class="login-title">Sign in</h2>
+      <p class="login-sub">Enter your admin credentials to continue.</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="username-input">Username</label>
+          <input id="username-input" type="text" class="form-input" placeholder="admin" required autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password-input">Password</label>
+          <input id="password-input" type="password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="login-btn">Sign In</button>
+        <div class="login-error" id="login-error">Invalid username or password.</div>
+      </form>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── APP ── -->
@@ -709,7 +810,7 @@
   document.getElementById('logout-btn').addEventListener('click', () => {
     SECRET = '';
     document.getElementById('app').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-screen').style.display = 'grid';
     document.getElementById('secret-input').value = '';
   });
 
