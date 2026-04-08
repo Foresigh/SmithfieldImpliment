@@ -851,16 +851,69 @@
     @media (max-width: 768px) {
       .nav-links, .nav-social, .nav-actions .btn { display: none; }
       .hamburger { display: flex; }
-      .hero { min-height: 80svh; }
-      .hero-stats-inner { flex-wrap: wrap; }
-      .stat { flex: 1 1 50%; }
-      .dept-grid { grid-template-columns: repeat(4, 1fr); }
+
+      /* Hero — stack content + stats vertically, no overlap */
+      .hero {
+        min-height: unset;
+        flex-direction: column;
+        align-items: stretch;
+        padding-bottom: 0;
+      }
+      .hero > .container { padding-top: 56px; padding-bottom: 40px; }
+      .hero-content { max-width: 100%; }
+      .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
+      .hero-tagline { font-size: .95rem; }
+      .hero-badge { font-size: .7rem; }
+      .hero-actions { flex-direction: column; }
+      .hero-actions .btn { width: 100%; justify-content: center; }
+
+      /* Stats — pull out of absolute, flow naturally below content */
+      .hero-stats {
+        position: relative;
+        bottom: unset; left: unset; right: unset;
+        padding: 0 0 0 0;
+        background: rgba(0,0,0,.25);
+      }
+      .hero-stats-inner {
+        flex-wrap: nowrap;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        border-top: 1px solid rgba(255,255,255,.15);
+        width: 100%;
+      }
+      .stat { flex: 1; padding: 16px 8px; }
+      .stat-number { font-size: 1.4rem; }
+      .stat-label { font-size: .62rem; }
+
+      /* Departments */
+      .dept-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .dept-name { font-size: .65rem; }
+      .dept-icon { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 8px; }
+
+      /* Sales preview */
+      .sales-preview-grid { grid-template-columns: 1fr; }
+      .sales-preview-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+
+      /* Services */
       .services-grid { grid-template-columns: 1fr; }
+
+      /* Awards */
       .awards-inner { flex-direction: column; text-align: center; }
       .awards-badges { justify-content: center; }
+
+      /* Heritage */
+      .heritage-inner { grid-template-columns: 1fr; gap: 48px; }
+
+      /* Footer */
       .footer-grid { grid-template-columns: 1fr; gap: 32px; }
       .location-inner { flex-direction: column; align-items: flex-start; }
       .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .dept-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-label { display: none; }
     }
   </style>
 </head>
