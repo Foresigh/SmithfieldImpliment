@@ -151,7 +151,7 @@ app.get('/api/sales', async (req, res) => {
 });
 
 // ── GET /api/sales/image/:id (serves the image or redirects) ─
-app.get('/api/sales/image/:id', async (req, res) => {
+async function serveImage(req, res) {
   const { rows } = await pool.query(
     'SELECT image_data, image_type, image_url FROM sale_items WHERE id = $1', [req.params.id]
   );
@@ -161,9 +161,31 @@ app.get('/api/sales/image/:id', async (req, res) => {
   if (row.image_data) {
     const buf = Buffer.from(row.image_data, 'base64');
     res.setHeader('Content-Type', row.image_type);
+    res.setHeader('Content-Length', buf.length);
     res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     return res.send(buf);
   }
+  res.status(404).end();
+}
+app.get('/api/sales/image/:id', serveImage);
+// Dedicated OG image route — no redirects, always serves bytes directly
+app.get('/sale/:id/image', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT image_data, image_type, image_url FROM sale_items WHERE id = $1', [req.params.id]
+  );
+  if (!rows.length) return res.status(404).end();
+  const row = rows[0];
+  if (row.image_data) {
+    const buf = Buffer.from(row.image_data, 'base64');
+    res.setHeader('Content-Type', row.image_type);
+    res.setHeader('Content-Length', buf.length);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    return res.send(buf);
+  }
+  // external URL — redirect is fine since it's a known good URL
+  if (row.image_url) return res.redirect(row.image_url);
   res.status(404).end();
 });
 
@@ -259,8 +281,8 @@ app.get('/sale/:id', async (req, res) => {
   const item  = rows[0];
   const base = (process.env.SITE_URL || 'https://smithfieldimpliment-production.up.railway.app').replace(/\/$/, '');
   const pageUrl = `${base}/sale/${item.id}`;
-  // Use the external image_url directly if available (avoids redirect for FB crawler)
-  const imgUrl  = item.image_url || `${base}/api/sales/image/${item.id}`;
+  // Use dedicated /image route that always serves bytes directly (no redirect chain)
+  const imgUrl  = item.image_url || `${base}/sale/${item.id}/image`;
   const title   = escHtml(`${item.percentage}% Off — ${item.title}`);
   const desc    = escHtml(item.note || `Save ${item.percentage}% on ${item.title} at Smithfield Implement Co.`);
   res.setHeader('Content-Type', 'text/html');
