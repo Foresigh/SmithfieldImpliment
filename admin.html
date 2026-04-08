@@ -510,18 +510,15 @@
             <button type="button" id="edit-tab-url" onclick="switchEditImageTab('url')" style="flex:1;padding:7px;border-radius:7px;border:2px solid var(--border);background:var(--bg);color:var(--muted);font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Image URL</button>
           </div>
           <div id="edit-img-upload-panel">
-            <div id="edit-drop-zone" style="border:2px dashed var(--border);border-radius:var(--radius);padding:20px 16px;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--bg);">
-              <p id="edit-drop-label" style="font-size:.82rem;color:var(--muted);">Click or drag &amp; drop new image</p>
+            <input type="file" id="edit-sale-image" accept="image/*" style="display:block;width:100%;padding:8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);font-size:.82rem;color:var(--text);cursor:pointer;" />
+            <div id="edit-img-preview-wrap" style="display:none;margin-top:10px;">
+              <img id="edit-img-preview" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover;" />
             </div>
-            <input type="file" id="edit-sale-image" accept="image/*" style="display:none;" />
           </div>
           <div id="edit-img-url-panel" style="display:none;">
             <input type="text" class="form-input" id="edit-sale-image-url" placeholder="https://example.com/banner.jpg" />
             <p style="font-size:.72rem;color:var(--muted);margin-top:6px;">Paste a direct link to the image</p>
           </div>
-        </div>
-        <div id="edit-img-preview-wrap" style="display:none;margin-bottom:16px;">
-          <img id="edit-img-preview" style="width:100%;border-radius:8px;max-height:120px;object-fit:cover;" />
         </div>
         <div id="edit-sale-error" style="display:none;color:var(--danger);font-size:.82rem;margin-bottom:10px;"></div>
         <div style="display:flex;gap:10px;justify-content:flex-end;">
@@ -778,29 +775,22 @@
 
   // ── Edit Sale Modal ──
   const editModal    = document.getElementById('edit-sale-modal');
-  const editDropZone = document.getElementById('edit-drop-zone');
-  const editFileInput= document.getElementById('edit-sale-image');
+  const editFileInput = document.getElementById('edit-sale-image');
 
   document.getElementById('edit-modal-close').addEventListener('click', () => editModal.classList.remove('open'));
   editModal.addEventListener('click', (e) => { if (e.target === editModal) editModal.classList.remove('open'); });
 
-  editDropZone.addEventListener('click', () => editFileInput.click());
-  editDropZone.addEventListener('dragover', (e) => { e.preventDefault(); editDropZone.style.borderColor = 'var(--blue)'; });
-  editDropZone.addEventListener('dragleave', () => { editDropZone.style.borderColor = 'var(--border)'; });
-  editDropZone.addEventListener('drop', (e) => {
-    e.preventDefault(); editDropZone.style.borderColor = 'var(--border)';
-    if (e.dataTransfer.files[0]) setEditPreview(e.dataTransfer.files[0]);
+  editFileInput.addEventListener('change', () => {
+    if (editFileInput.files[0]) setEditPreview(editFileInput.files[0]);
   });
-  editFileInput.addEventListener('change', () => { if (editFileInput.files[0]) setEditPreview(editFileInput.files[0]); });
 
   let editSelectedFile = null;
 
   function setEditPreview(file) {
     editSelectedFile = file;
-    document.getElementById('edit-drop-label').textContent = file.name;
     const reader = new FileReader();
-    reader.onload = (e) => {
-      document.getElementById('edit-img-preview').src = e.target.result;
+    reader.onload = (ev) => {
+      document.getElementById('edit-img-preview').src = ev.target.result;
       document.getElementById('edit-img-preview-wrap').style.display = 'block';
     };
     reader.readAsDataURL(file);
@@ -813,7 +803,6 @@
     document.getElementById('edit-sale-title').value = r.title;
     document.getElementById('edit-sale-pct').value   = r.percentage;
     document.getElementById('edit-sale-note').value  = r.note || '';
-    document.getElementById('edit-drop-label').textContent = 'Click or drag & drop new image';
     document.getElementById('edit-img-preview-wrap').style.display = 'none';
     document.getElementById('edit-sale-error').style.display = 'none';
     document.getElementById('edit-sale-image-url').value = '';
@@ -835,8 +824,9 @@
     formData.append('title',      document.getElementById('edit-sale-title').value);
     formData.append('percentage', document.getElementById('edit-sale-pct').value);
     formData.append('note',       document.getElementById('edit-sale-note').value);
-    if (editImageMode === 'upload' && (editSelectedFile || editFileInput.files[0])) {
-      formData.append('image', editSelectedFile || editFileInput.files[0]);
+    const editFile = editFileInput.files[0] || editSelectedFile;
+    if (editImageMode === 'upload' && editFile) {
+      formData.append('image', editFile);
     } else if (editImageMode === 'url') {
       const urlVal = document.getElementById('edit-sale-image-url').value;
       if (urlVal) formData.append('image_url', urlVal);
