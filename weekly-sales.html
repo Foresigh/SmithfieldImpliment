@@ -283,15 +283,31 @@
     }
     .cta-btn-secondary:hover { background: var(--gold-dark); }
     .cta-close-btn {
-      position: absolute; top: 16px; right: 16px;
+      position: absolute; top: 12px; right: 12px;
       width: 32px; height: 32px;
       background: rgba(0,0,0,.4); border: none;
       border-radius: 50%; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       color: #fff; transition: background .2s;
     }
-    .cta-close-btn:hover { background: rgba(0,0,0,.6); }
+    .cta-close-btn:hover { background: rgba(0,0,0,.65); }
     .cta-modal-img-wrap { position: relative; }
+    .cta-share {
+      border-top: 1px solid #f1f5f9; padding-top: 14px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .cta-share-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-500); margin-right: 4px; }
+    .cta-share-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 12px; border-radius: 8px; border: 1px solid var(--gray-300);
+      font-size: .78rem; font-weight: 600; font-family: var(--font-sans);
+      cursor: pointer; transition: all .2s; background: #fff; text-decoration: none; color: var(--gray-700);
+    }
+    .cta-share-btn:hover { border-color: var(--blue); color: var(--blue); background: #e8f3fb; }
+    .cta-share-btn.fb:hover  { border-color: #1877f2; color: #1877f2; background: #e7f0fd; }
+    .cta-share-btn.sms:hover { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
+    .cta-share-btn.copy:hover { border-color: #d99500; color: #d99500; background: #fef9ec; }
+    .cta-modal { max-height: 90vh; overflow-y: auto; }
   </style>
 </head>
 <body>
@@ -410,6 +426,21 @@
             Call Us
           </a>
         </div>
+        <div class="cta-share">
+          <span class="cta-share-label">Share deal:</span>
+          <a id="ws-share-fb" href="#" target="_blank" class="cta-share-btn fb">
+            <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Facebook
+          </a>
+          <a id="ws-share-sms" href="#" class="cta-share-btn sms">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Text a Friend
+          </a>
+          <button id="ws-share-copy" class="cta-share-btn copy">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy Link
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -483,14 +514,29 @@
     const overlay = document.getElementById('cta-overlay');
 
     function openCTA(id, title, pct, note) {
-      document.getElementById('cta-img').src          = '/api/sales/image/' + id;
-      document.getElementById('cta-img').alt          = title;
-      document.getElementById('cta-title').textContent = title;
-      document.getElementById('cta-pct-label').textContent = pct + '% OFF This Week';
-      document.getElementById('cta-note').textContent  = note ? '*' + note : '';
+      document.getElementById('cta-img').src                = '/api/sales/image/' + id;
+      document.getElementById('cta-img').alt                = title;
+      document.getElementById('cta-title').textContent      = title;
+      document.getElementById('cta-pct-label').textContent  = pct + '% OFF This Week';
+      const noteEl = document.getElementById('cta-note');
+      noteEl.textContent  = note ? '*' + note : '';
+      noteEl.style.display = note ? 'block' : 'none';
+      // share URLs
+      const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
+      const shareUrl  = encodeURIComponent('https://smithfieldimpliment-production.up.railway.app/weekly-sales');
+      document.getElementById('ws-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl + '&quote=' + shareText;
+      document.getElementById('ws-share-sms').href = 'sms:?body=' + shareText + '%20' + shareUrl;
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
+
+    document.getElementById('ws-share-copy').addEventListener('click', () => {
+      navigator.clipboard.writeText('https://smithfieldimpliment-production.up.railway.app/weekly-sales').then(() => {
+        const btn = document.getElementById('ws-share-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link'; }, 2000);
+      });
+    });
 
     function closeCTA() {
       overlay.classList.remove('open');
