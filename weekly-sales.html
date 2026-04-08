@@ -455,7 +455,7 @@
     async function loadSales() {
       const container = document.getElementById('sales-container');
       try {
-        const res   = await fetch('/api/sales');
+        const res   = await fetch('/api/sales', { cache: 'no-store' });
         const items = await res.json();
         if (!items.length) {
           container.innerHTML = `
@@ -469,7 +469,7 @@
         container.innerHTML = `<div class="sales-grid">${items.map(item => `
           <div class="sale-card" onclick="openCTA(${item.id},'${esc(item.title)}','${item.percentage}','${esc(item.note||'')}')">
             <div class="sale-card-media">
-              <img class="sale-card-img" src="/api/sales/image/${item.id}" alt="${esc(item.title)}" loading="lazy" />
+              <img class="sale-card-img" src="/api/sales/image/${item.id}?t=${new Date(item.updated_at||item.created_at).getTime()}" alt="${esc(item.title)}" loading="lazy" />
               <div class="sale-pct-badge">
                 ${item.percentage}%
                 <span>OFF</span>

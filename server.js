@@ -163,8 +163,9 @@ app.get('/api/subscribers', adminAuth, async (req, res) => {
 // ── GET /api/sales (public — published items only) ───────────
 app.get('/api/sales', async (req, res) => {
   const { rows } = await pool.query(
-    'SELECT id, title, percentage, note, created_at FROM sale_items WHERE published = true ORDER BY created_at DESC'
+    'SELECT id, title, percentage, note, created_at, updated_at FROM sale_items WHERE published = true ORDER BY created_at DESC'
   );
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.json(rows);
 });
 

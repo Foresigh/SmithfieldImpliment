@@ -1555,7 +1555,7 @@
     (async function loadHomepageSales() {
       const grid = document.getElementById('homepage-sales');
       try {
-        const res   = await fetch('/api/sales');
+        const res   = await fetch('/api/sales', { cache: 'no-store' });
         const items = await res.json();
         const top3  = items.slice(0, 4);
         if (!top3.length) {
@@ -1569,7 +1569,7 @@
             data-pct="${item.percentage}"
             data-note="${(item.note||'').replace(/"/g,'&quot;')}">
             <div class="sp-card-media">
-              <img class="sp-card-img" src="/api/sales/image/${item.id}" alt="${item.title.replace(/"/g,'')}" loading="lazy" />
+              <img class="sp-card-img" src="/api/sales/image/${item.id}?t=${new Date(item.updated_at||item.created_at).getTime()}" alt="${item.title.replace(/"/g,'')}" loading="lazy" />
               <div class="sp-pct-badge">${item.percentage}%<span>OFF</span></div>
             </div>
             <div class="sp-card-body">
