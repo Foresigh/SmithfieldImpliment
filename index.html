@@ -292,8 +292,8 @@
     }
     .sales-preview-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
     }
     .sp-card {
       background: var(--white);
@@ -892,7 +892,7 @@
       .dept-icon { width: 36px; height: 36px; border-radius: 10px; margin-bottom: 8px; }
 
       /* Sales preview */
-      .sales-preview-grid { grid-template-columns: 1fr; }
+      .sales-preview-grid { grid-template-columns: repeat(2, 1fr); }
       .sales-preview-header { flex-direction: column; align-items: flex-start; gap: 12px; }
 
       /* Services */
@@ -1547,7 +1547,7 @@
       try {
         const res   = await fetch('/api/sales');
         const items = await res.json();
-        const top3  = items.slice(0, 3);
+        const top3  = items.slice(0, 4);
         if (!top3.length) {
           grid.innerHTML = '<div class="sales-preview-empty">No sales this week — check back soon!</div>';
           return;
@@ -1573,46 +1573,52 @@
     })();
 
     // ── Homepage sale card CTA modal ──
-    (function() {
-      const overlay = document.getElementById('hp-cta-overlay');
-      if (!overlay) return;
+    // Uses event delegation so it works even after async cards are injected
+    document.addEventListener('click', function(e) {
+      const card = e.target.closest('#homepage-sales .sp-card');
+      if (!card) return;
+      e.preventDefault();
 
-      // make homepage cards open modal instead of navigating
-      document.addEventListener('click', (e) => {
-        const card = e.target.closest('#homepage-sales .sp-card');
-        if (!card) return;
-        e.preventDefault();
-        const id    = card.dataset.id;
-        const title = card.dataset.title;
-        const pct   = card.dataset.pct;
-        const note  = card.dataset.note;
-        document.getElementById('hp-cta-img').src                = '/api/sales/image/' + id;
-        document.getElementById('hp-cta-title').textContent      = title;
-        document.getElementById('hp-cta-pct-label').textContent  = pct + '% OFF This Week';
-        document.getElementById('hp-cta-note').textContent       = note ? '*' + note : '';
-        document.getElementById('hp-cta-note').style.display     = note ? 'block' : 'none';
-        // set share URLs
-        const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
-        const shareUrl  = encodeURIComponent('https://smithfieldimpliment-production.up.railway.app/weekly-sales');
-        document.getElementById('hp-share-fb').href    = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl + '&quote=' + shareText;
-        document.getElementById('hp-share-sms').href   = 'sms:?body=' + shareText + '%20' + shareUrl;
-        overlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
+      const id    = card.dataset.id;
+      const title = card.dataset.title;
+      const pct   = card.dataset.pct;
+      const note  = card.dataset.note;
+
+      document.getElementById('hp-cta-img').src               = '/api/sales/image/' + id;
+      document.getElementById('hp-cta-title').textContent     = title;
+      document.getElementById('hp-cta-pct-label').textContent = pct + '% OFF This Week';
+      const noteEl = document.getElementById('hp-cta-note');
+      noteEl.textContent   = note ? '*' + note : '';
+      noteEl.style.display = note ? 'block' : 'none';
+
+      const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
+      const shareUrl  = encodeURIComponent('https://smithfieldimpliment-production.up.railway.app/weekly-sales');
+      document.getElementById('hp-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl + '&quote=' + shareText;
+      document.getElementById('hp-share-sms').href = 'sms:?body=' + shareText + '%20' + shareUrl;
+
+      document.getElementById('hp-cta-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+
+    function hpCloseModal() {
+      document.getElementById('hp-cta-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('hp-cta-close').addEventListener('click', hpCloseModal);
+    document.getElementById('hp-cta-overlay').addEventListener('click', function(e) {
+      if (e.target === this) hpCloseModal();
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') hpCloseModal();
+    });
+    document.getElementById('hp-share-copy').addEventListener('click', function() {
+      navigator.clipboard.writeText('https://smithfieldimpliment-production.up.railway.app/weekly-sales').then(() => {
+        this.textContent = 'Copied!';
+        setTimeout(() => {
+          this.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link';
+        }, 2000);
       });
-
-      function closeModal() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
-      document.getElementById('hp-cta-close').addEventListener('click', closeModal);
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
-
-      document.getElementById('hp-share-copy').addEventListener('click', () => {
-        navigator.clipboard.writeText('https://smithfieldimpliment-production.up.railway.app/weekly-sales').then(() => {
-          const btn = document.getElementById('hp-share-copy');
-          btn.textContent = 'Copied!';
-          setTimeout(() => { btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link'; }, 2000);
-        });
-      });
-    })();
+    });
 
     // ── Sticky navbar shadow on scroll ──
     const navbar = document.querySelector('.navbar');
