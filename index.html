@@ -1593,10 +1593,12 @@
       noteEl.textContent   = note ? '*' + note : '';
       noteEl.style.display = note ? 'block' : 'none';
 
+      const itemUrl   = window.location.origin + '/sale/' + id;
       const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
-      const shareUrl  = encodeURIComponent('https://smithfieldimpliment-production.up.railway.app/weekly-sales');
-      document.getElementById('hp-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl + '&quote=' + shareText;
+      const shareUrl  = encodeURIComponent(itemUrl);
+      document.getElementById('hp-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl;
       document.getElementById('hp-share-sms').href = 'sms:?body=' + shareText + '%20' + shareUrl;
+      document.getElementById('hp-cta-overlay').dataset.shareUrl = itemUrl;
 
       document.getElementById('hp-cta-overlay').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -1618,7 +1620,8 @@
       });
       document.getElementById('hp-share-copy').addEventListener('click', function(e) {
         e.stopPropagation();
-        navigator.clipboard.writeText('https://smithfieldimpliment-production.up.railway.app/weekly-sales').then(() => {
+        const url = document.getElementById('hp-cta-overlay').dataset.shareUrl || window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
           this.textContent = 'Copied!';
           setTimeout(() => {
             this.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link';

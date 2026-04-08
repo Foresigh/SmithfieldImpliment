@@ -483,6 +483,12 @@
             </div>
           </div>`).join('')}
         </div>`;
+        // auto-open if ?item= param is present (from shared link)
+        const autoId = new URLSearchParams(window.location.search).get('item');
+        if (autoId) {
+          const match = items.find(i => String(i.id) === autoId);
+          if (match) openCTA(match.id, match.title, match.percentage, match.note || '');
+        }
       } catch {
         container.innerHTML = '<div class="empty"><h3>Could not load sales. Please try again later.</h3></div>';
       }
@@ -523,17 +529,20 @@
       const noteEl = document.getElementById('cta-note');
       noteEl.textContent  = note ? '*' + note : '';
       noteEl.style.display = note ? 'block' : 'none';
-      // share URLs
+      // share URLs — use /sale/:id for OG image support
+      const itemUrl   = window.location.origin + '/sale/' + id;
       const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
-      const shareUrl  = encodeURIComponent('https://smithfieldimpliment-production.up.railway.app/weekly-sales');
-      document.getElementById('ws-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl + '&quote=' + shareText;
+      const shareUrl  = encodeURIComponent(itemUrl);
+      document.getElementById('ws-share-fb').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl;
       document.getElementById('ws-share-sms').href = 'sms:?body=' + shareText + '%20' + shareUrl;
+      overlay.dataset.shareUrl = itemUrl;
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
 
     document.getElementById('ws-share-copy').addEventListener('click', () => {
-      navigator.clipboard.writeText('https://smithfieldimpliment-production.up.railway.app/weekly-sales').then(() => {
+      const url = document.getElementById('cta-overlay').dataset.shareUrl || window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
         const btn = document.getElementById('ws-share-copy');
         btn.textContent = 'Copied!';
         setTimeout(() => { btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Link'; }, 2000);

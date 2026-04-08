@@ -240,6 +240,52 @@ app.delete('/api/admin/sales/:id', adminAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// ── /sale/:id — OG meta tags for Facebook/Twitter sharing ────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+app.get('/sale/:id', async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT id, title, percentage, note FROM sale_items WHERE id = $1 AND published = true',
+    [req.params.id]
+  );
+  if (!rows.length) return res.redirect('/weekly-sales');
+  const item    = rows[0];
+  const base    = `${req.protocol}://${req.get('host')}`;
+  const pageUrl = `${base}/sale/${item.id}`;
+  const imgUrl  = `${base}/api/sales/image/${item.id}`;
+  const title   = escHtml(`${item.percentage}% Off — ${item.title}`);
+  const desc    = escHtml(item.note || `Save ${item.percentage}% on ${item.title} at Smithfield Implement Co.`);
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>${title}</title>
+  <meta property="og:title"       content="${title}" />
+  <meta property="og:description" content="${desc}" />
+  <meta property="og:image"       content="${imgUrl}" />
+  <meta property="og:image:width" content="800" />
+  <meta property="og:image:height" content="600" />
+  <meta property="og:url"         content="${pageUrl}" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="Smithfield Implement Co." />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="${title}" />
+  <meta name="twitter:description" content="${desc}" />
+  <meta name="twitter:image"      content="${imgUrl}" />
+  <meta http-equiv="refresh" content="0;url=/weekly-sales?item=${item.id}" />
+  <script>window.location.replace('/weekly-sales?item=${item.id}');</script>
+</head>
+<body></body>
+</html>`);
+});
+
 // ── Admin dashboard ──────────────────────────────────────────
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
