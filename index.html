@@ -1418,7 +1418,7 @@
           return;
         }
         grid.innerHTML = top3.map(item => `
-          <a href="/weekly-sales" class="sp-card">
+          <div class="sp-card" style="cursor:pointer;" onclick="window.location.href='/weekly-sales'">
             <div class="sp-card-media">
               <img class="sp-card-img" src="/api/sales/image/${item.id}" alt="${item.title.replace(/"/g,'')}" loading="lazy" />
               <div class="sp-pct-badge">${item.percentage}%<span>OFF</span></div>
@@ -1427,7 +1427,7 @@
               <h3>${item.title.replace(/</g,'&lt;')}</h3>
               ${item.note ? `<p>*${item.note.replace(/</g,'&lt;')}</p>` : ''}
             </div>
-          </a>`).join('');
+          </div>`).join('');
       } catch {
         grid.innerHTML = '<div class="sales-preview-empty">Could not load sales. <a href="/weekly-sales" style="color:var(--blue)">View all sales →</a></div>';
       }
