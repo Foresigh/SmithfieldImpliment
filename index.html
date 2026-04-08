@@ -539,6 +539,13 @@
       display: flex;
       gap: 24px;
       flex-wrap: wrap;
+      justify-content: center;
+    }
+    .awards-badge-img {
+      width: 300px;
+      max-width: 100%;
+      height: auto;
+      object-fit: contain;
     }
     .award-badge {
       background: rgba(255,255,255,.1);
@@ -902,6 +909,7 @@
       /* Awards */
       .awards-inner { flex-direction: column; text-align: center; }
       .awards-badges { justify-content: center; }
+      .awards-badge-img { width: 220px; }
 
       /* Heritage */
       .heritage-inner { grid-template-columns: 1fr; gap: 48px; }
@@ -1296,7 +1304,7 @@
           <p>Two years running, Cache Valley has voted Smithfield Implement Co. the best — and we're just getting started. Thank you for your continued trust and support.</p>
         </div>
         <div class="awards-badges reveal">
-          <img src="Northern_Utah_winner_badges_2024-2025.png" alt="Best of Northern Utah 2024 &amp; 2025 Winner" style="width:300px;height:auto;object-fit:contain;" />
+          <img src="Northern_Utah_winner_badges_2024-2025.png" alt="Best of Northern Utah 2024 &amp; 2025 Winner" class="awards-badge-img" />
         </div>
       </div>
     </div>
