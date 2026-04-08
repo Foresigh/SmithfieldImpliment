@@ -793,8 +793,10 @@
   });
   editFileInput.addEventListener('change', () => { if (editFileInput.files[0]) setEditPreview(editFileInput.files[0]); });
 
+  let editSelectedFile = null;
+
   function setEditPreview(file) {
-    const dt = new DataTransfer(); dt.items.add(file); editFileInput.files = dt.files;
+    editSelectedFile = file;
     document.getElementById('edit-drop-label').textContent = file.name;
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -816,6 +818,7 @@
     document.getElementById('edit-sale-error').style.display = 'none';
     document.getElementById('edit-sale-image-url').value = '';
     editFileInput.value = '';
+    editSelectedFile = null;
     switchEditImageTab('upload');
     editModal.classList.add('open');
   }
@@ -832,8 +835,8 @@
     formData.append('title',      document.getElementById('edit-sale-title').value);
     formData.append('percentage', document.getElementById('edit-sale-pct').value);
     formData.append('note',       document.getElementById('edit-sale-note').value);
-    if (editImageMode === 'upload' && editFileInput.files[0]) {
-      formData.append('image', editFileInput.files[0]);
+    if (editImageMode === 'upload' && (editSelectedFile || editFileInput.files[0])) {
+      formData.append('image', editSelectedFile || editFileInput.files[0]);
     } else if (editImageMode === 'url') {
       const urlVal = document.getElementById('edit-sale-image-url').value;
       if (urlVal) formData.append('image_url', urlVal);
