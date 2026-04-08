@@ -306,6 +306,7 @@
       white-space: nowrap; flex: 1; justify-content: center;
     }
     .cta-share-btn:hover { border-color: var(--blue); color: var(--blue); background: #e8f3fb; }
+    @media (max-width: 768px) { .desktop-only { display: none !important; } }
     .cta-share-btn.fb:hover  { border-color: #1877f2; color: #1877f2; background: #e7f0fd; }
     .cta-share-btn.sms:hover { border-color: #16a34a; color: #16a34a; background: #f0fdf4; }
     .cta-share-btn.copy:hover { border-color: #d99500; color: #d99500; background: #fef9ec; }
@@ -434,6 +435,10 @@
             <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
             Share
           </a>
+          <a id="ws-share-fb-desktop" href="#" class="cta-share-btn fb desktop-only">
+            <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            Facebook
+          </a>
           <a id="ws-share-sms" href="#" class="cta-share-btn sms">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Text a Friend
@@ -534,11 +539,18 @@
       const shareText = encodeURIComponent(pct + '% OFF — ' + title + ' at Smithfield Implement Co.!');
       const shareUrl  = encodeURIComponent(itemUrl);
       document.getElementById('ws-share-fb').dataset.fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl;
+      document.getElementById('ws-share-fb-desktop').dataset.fbUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + shareUrl;
       document.getElementById('ws-share-sms').href = 'sms:?body=' + shareText + '%20' + shareUrl;
       overlay.dataset.shareUrl = itemUrl;
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
+
+    document.getElementById('ws-share-fb-desktop').addEventListener('click', function(e) {
+      e.preventDefault();
+      const url = this.dataset.fbUrl;
+      if (url) window.open(url, '_blank');
+    });
 
     document.getElementById('ws-share-fb').addEventListener('click', async function(e) {
       e.preventDefault();
