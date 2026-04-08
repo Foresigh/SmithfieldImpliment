@@ -335,7 +335,7 @@ app.post('/api/track/click', async (req, res) => {
 // ── GET /api/admin/analytics ──────────────────────────────────
 app.get('/api/admin/analytics', adminAuth, async (req, res) => {
   try {
-    const [today, week, topPages, topRefs, recent, topClicks, uniqueToday] = await Promise.all([
+    const [today, week, topPages, topRefs, recent, topClicks, uniqueToday, daily] = await Promise.all([
       pool.query("SELECT COUNT(*) FROM page_views WHERE created_at > NOW() - INTERVAL '1 day'"),
       pool.query("SELECT COUNT(*) FROM page_views WHERE created_at > NOW() - INTERVAL '7 days'"),
       pool.query("SELECT page, COUNT(*) AS count FROM page_views GROUP BY page ORDER BY count DESC LIMIT 6"),
@@ -343,6 +343,7 @@ app.get('/api/admin/analytics', adminAuth, async (req, res) => {
       pool.query("SELECT page, ip, country, city, region, referrer, user_agent, created_at FROM page_views ORDER BY created_at DESC LIMIT 100"),
       pool.query("SELECT element, COUNT(*) AS count FROM click_events GROUP BY element ORDER BY count DESC LIMIT 10"),
       pool.query("SELECT COUNT(DISTINCT ip) FROM page_views WHERE created_at > NOW() - INTERVAL '1 day'"),
+      pool.query("SELECT DATE(created_at AT TIME ZONE 'America/Denver') AS day, COUNT(*) AS views, COUNT(DISTINCT ip) AS uniques FROM page_views WHERE created_at > NOW() - INTERVAL '14 days' GROUP BY day ORDER BY day ASC"),
     ]);
     res.json({
       todayViews:    parseInt(today.rows[0].count),
@@ -352,6 +353,7 @@ app.get('/api/admin/analytics', adminAuth, async (req, res) => {
       topReferrers:  topRefs.rows,
       recentVisitors: recent.rows,
       topClicks:     topClicks.rows,
+      daily:         daily.rows,
     });
   } catch (e) {
     console.error('analytics error:', e.message);
