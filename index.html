@@ -616,9 +616,9 @@
     }
     .sales-cta-inner {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: center;
+      grid-template-columns: 3fr 2fr;
+      gap: 48px;
+      align-items: start;
     }
     .sales-cta-content .section-title { margin-bottom: 20px; }
     .sales-cta-content p { color: var(--gray-500); font-size: 1.05rem; line-height: 1.8; margin-bottom: 32px; }
@@ -1465,16 +1465,13 @@
     <div class="container">
       <div class="sales-cta-inner">
         <div class="sales-cta-content reveal">
-          <span class="section-label">Never Miss a Deal</span>
+          <span class="section-label">This Week's Deals</span>
           <h2 class="section-title">Weekly <span>Sales</span> &amp; Specials</h2>
-          <p>New deals drop every week across all departments. Subscribe to our email list and be the first to know about advertised sales, seasonal promotions, and exclusive updates delivered right to your inbox.</p>
-          <div class="sales-cta-actions">
-            <a href="#" class="btn btn-blue">
-              View Current Sales
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
-            <a href="#" class="btn btn-primary">Browse Departments</a>
-          </div>
+          <div class="sales-preview-grid" id="sales-cta-grid" style="margin-bottom:24px;"></div>
+          <a href="/weekly-sales" class="btn btn-blue">
+            View All Sales
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
         </div>
         <div class="sales-card reveal" id="subscribe">
           <div class="sales-card-title">Stay in the Loop</div>
@@ -1655,16 +1652,13 @@
 
     // ── Homepage sales preview ──
     (async function loadHomepageSales() {
-      const grid = document.getElementById('homepage-sales');
+      const grid    = document.getElementById('homepage-sales');
+      const ctaGrid = document.getElementById('sales-cta-grid');
       try {
         const res   = await fetch('/api/sales', { cache: 'no-store' });
         const items = await res.json();
-        const top3  = items.slice(0, 4);
-        if (!top3.length) {
-          grid.innerHTML = '<div class="sales-preview-empty">No sales this week — check back soon!</div>';
-          return;
-        }
-        grid.innerHTML = top3.map(item => `
+        const top4  = items.slice(0, 4);
+        const cardHtml = top4.map(item => `
           <div class="sp-card" style="cursor:pointer;"
             data-id="${item.id}"
             data-title="${item.title.replace(/"/g,'&quot;')}"
@@ -1679,15 +1673,25 @@
               ${item.note ? `<p>*${item.note.replace(/</g,'&lt;')}</p>` : ''}
             </div>
           </div>`).join('');
+        if (!top4.length) {
+          const empty = '<div class="sales-preview-empty">No sales this week. Check back soon!</div>';
+          grid.innerHTML = empty;
+          ctaGrid.innerHTML = empty;
+          return;
+        }
+        grid.innerHTML    = cardHtml;
+        ctaGrid.innerHTML = cardHtml;
       } catch {
-        grid.innerHTML = '<div class="sales-preview-empty">Could not load sales. <a href="/weekly-sales" style="color:var(--blue)">View all sales →</a></div>';
+        const err = '<div class="sales-preview-empty">Could not load sales. <a href="/weekly-sales" style="color:var(--blue)">View all</a></div>';
+        grid.innerHTML    = err;
+        ctaGrid.innerHTML = err;
       }
     })();
 
     // ── Homepage sale card CTA modal ──
     // Uses event delegation so it works even after async cards are injected
     document.addEventListener('click', function(e) {
-      const card = e.target.closest('#homepage-sales .sp-card');
+      const card = e.target.closest('#homepage-sales .sp-card, #sales-cta-grid .sp-card');
       if (!card) return;
       e.preventDefault();
 
