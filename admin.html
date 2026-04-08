@@ -164,7 +164,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
     .stat-card {
       background: var(--surface);
@@ -173,7 +173,11 @@
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       display: flex; align-items: flex-start; gap: 16px;
+      cursor: pointer;
+      transition: box-shadow .2s, transform .15s, border-color .2s;
+      text-decoration: none; color: inherit;
     }
+    .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--blue); }
     .stat-icon {
       width: 48px; height: 48px; border-radius: 12px;
       display: flex; align-items: center; justify-content: center;
@@ -182,8 +186,72 @@
     .stat-icon.blue   { background: #dbeafe; color: var(--blue); }
     .stat-icon.gold   { background: #fef3c7; color: #b45309; }
     .stat-icon.green  { background: var(--green-bg); color: var(--green); }
+    .stat-icon.red    { background: #fef2f2; color: var(--danger); }
     .stat-value { font-size: 2rem; font-weight: 700; line-height: 1; }
     .stat-label { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+    .stat-arrow { margin-left: auto; color: var(--muted); opacity: .4; align-self: center; }
+
+    /* Quick actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .quick-action {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      cursor: pointer; transition: all .2s;
+      font-size: .8rem; font-weight: 600; color: var(--text);
+      text-align: center;
+    }
+    .quick-action:hover { background: #eff6ff; border-color: var(--blue); color: var(--blue); }
+    .quick-action svg { opacity: .7; }
+
+    /* Recent activity */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .section-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .section-card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .section-card-header h4 { font-size: .88rem; font-weight: 700; }
+    .see-all-btn {
+      font-size: .75rem; color: var(--blue); font-weight: 600;
+      background: none; border: none; cursor: pointer; padding: 0;
+    }
+    .section-card-body { padding: 8px 0; }
+    .activity-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: .82rem;
+    }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: #dbeafe; color: var(--blue);
+      font-size: .72rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .activity-name { font-weight: 600; }
+    .activity-sub  { font-size: .75rem; color: var(--muted); }
+    .activity-date { margin-left: auto; font-size: .72rem; color: var(--muted); white-space: nowrap; }
 
     /* Table */
     .table-card {
@@ -369,10 +437,14 @@
   <!-- Main -->
   <main class="main">
     <div class="topbar">
-      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div>
+        <div class="topbar-title" id="topbar-title">Dashboard</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px;" id="topbar-date"></div>
+      </div>
       <div class="topbar-right">
         <span class="badge badge-green">● Live</span>
-        <a href="/" target="_blank" class="badge badge-blue">View Site ↗</a>
+        <a href="/weekly-sales" target="_blank" class="badge badge-blue">Weekly Sales ↗</a>
+        <a href="/" target="_blank" class="badge badge-blue" style="background:#f1f5f9;color:var(--text);">View Site ↗</a>
       </div>
     </div>
 
@@ -382,6 +454,40 @@
       <div class="page active" id="page-dashboard">
         <div class="stats-grid" id="stats-grid">
           <div class="spinner" style="grid-column:1/-1"></div>
+        </div>
+        <div class="quick-actions">
+          <button class="quick-action" onclick="navTo('sales')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Sale Item
+          </button>
+          <button class="quick-action" onclick="navTo('subscribers')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            View Subscribers
+          </button>
+          <button class="quick-action" onclick="navTo('contacts')">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            View Messages
+          </button>
+          <a class="quick-action" href="/weekly-sales" target="_blank">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Live Site
+          </a>
+        </div>
+        <div class="dashboard-grid" id="dashboard-grid">
+          <div class="section-card">
+            <div class="section-card-header">
+              <h4>Recent Subscribers</h4>
+              <button class="see-all-btn" onclick="navTo('subscribers')">See all →</button>
+            </div>
+            <div class="section-card-body" id="dash-recent-subs"><div class="spinner"></div></div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-header">
+              <h4>Recent Messages</h4>
+              <button class="see-all-btn" onclick="navTo('contacts')">See all →</button>
+            </div>
+            <div class="section-card-body" id="dash-recent-contacts"><div class="spinner"></div></div>
+          </div>
         </div>
       </div>
 
@@ -590,6 +696,7 @@
       SECRET = data.token;
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
+      document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
       loadDashboard();
     } catch {
       err.style.display = 'block';
@@ -622,40 +729,85 @@
     });
   });
 
+  // ── Nav helper ──
+  function navTo(page) {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    document.getElementById('page-' + page).classList.add('active');
+    document.getElementById('topbar-title').textContent = pages[page];
+    if (page === 'subscribers') loadSubscribers();
+    if (page === 'contacts')    loadContacts();
+    if (page === 'sales')       loadSales();
+  }
+
   // ── Dashboard ──
   async function loadDashboard() {
     const grid = document.getElementById('stats-grid');
     grid.innerHTML = '<div class="spinner" style="grid-column:1/-1"></div>';
-    const stats = await apiFetch('/api/admin/stats');
+    const [stats, subs, cons] = await Promise.all([
+      apiFetch('/api/admin/stats'),
+      apiFetch('/api/admin/subscribers'),
+      apiFetch('/api/admin/contacts'),
+    ]);
     grid.innerHTML = `
-      <div class="stat-card">
+      <div class="stat-card" onclick="navTo('subscribers')" title="View Subscribers">
         <div class="stat-icon blue">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
-        <div>
+        <div style="flex:1;">
           <div class="stat-value">${stats.totalSubscribers}</div>
           <div class="stat-label">Total Subscribers</div>
         </div>
+        <svg class="stat-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" onclick="navTo('subscribers')" title="New This Week">
         <div class="stat-icon green">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         </div>
-        <div>
+        <div style="flex:1;">
           <div class="stat-value">${stats.newThisWeek}</div>
-          <div class="stat-label">New This Week</div>
+          <div class="stat-label">New Subscribers This Week</div>
         </div>
+        <svg class="stat-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" onclick="navTo('contacts')" title="View Messages">
         <div class="stat-icon gold">
           <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         </div>
-        <div>
+        <div style="flex:1;">
           <div class="stat-value">${stats.totalContacts}</div>
           <div class="stat-label">Contact Messages</div>
         </div>
+        <svg class="stat-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </div>
     `;
+
+    // Recent subscribers
+    const recentSubsEl = document.getElementById('dash-recent-subs');
+    const recentSubs = subs.slice(0, 5);
+    recentSubsEl.innerHTML = recentSubs.length ? recentSubs.map(r => `
+      <div class="activity-row">
+        <div class="activity-avatar">${r.name.slice(0,2).toUpperCase()}</div>
+        <div>
+          <div class="activity-name">${esc(r.name)}</div>
+          <div class="activity-sub">${esc(r.email)}</div>
+        </div>
+        <div class="activity-date">${formatDate(r.created_at)}</div>
+      </div>`).join('') : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">No subscribers yet</div>';
+
+    // Recent contacts
+    const recentConsEl = document.getElementById('dash-recent-contacts');
+    const recentCons = cons.slice(0, 5);
+    recentConsEl.innerHTML = recentCons.length ? recentCons.map(r => `
+      <div class="activity-row">
+        <div class="activity-avatar" style="background:#fef3c7;color:#b45309;">${r.name.slice(0,2).toUpperCase()}</div>
+        <div style="min-width:0;flex:1;">
+          <div class="activity-name">${esc(r.name)}</div>
+          <div class="activity-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;">${esc(r.message)}</div>
+        </div>
+        <div class="activity-date">${formatDate(r.created_at)}</div>
+      </div>`).join('') : '<div style="padding:20px;text-align:center;color:var(--muted);font-size:.85rem;">No messages yet</div>';
   }
 
   // ── Subscribers ──
