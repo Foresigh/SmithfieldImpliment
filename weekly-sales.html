@@ -432,7 +432,7 @@
           <span class="cta-share-label">Share deal:</span>
           <a id="ws-share-fb" href="#" class="cta-share-btn fb">
             <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-            Facebook
+            Share
           </a>
           <a id="ws-share-sms" href="#" class="cta-share-btn sms">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -540,14 +540,18 @@
       document.body.style.overflow = 'hidden';
     }
 
-    document.getElementById('ws-share-fb').addEventListener('click', function(e) {
+    document.getElementById('ws-share-fb').addEventListener('click', async function(e) {
       e.preventDefault();
-      const url = this.dataset.fbUrl;
-      if (!url) return;
-      if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        window.location.href = url;
+      const fbUrl  = this.dataset.fbUrl;
+      const shareUrl = document.getElementById('cta-overlay').dataset.shareUrl || fbUrl;
+      const title  = document.getElementById('cta-title').textContent;
+      const pct    = document.getElementById('cta-pct-label').textContent;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: title, text: pct + ' at Smithfield Implement Co.!', url: shareUrl });
+        } catch(err) { /* user cancelled */ }
       } else {
-        window.open(url, '_blank');
+        window.open(fbUrl, '_blank');
       }
     });
 
