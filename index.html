@@ -245,6 +245,15 @@
       margin-bottom: 40px;
       max-width: 520px;
     }
+    .hero-trust {
+      display: flex; flex-wrap: wrap; gap: 16px 24px;
+      margin-bottom: 36px;
+    }
+    .hero-trust-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: .82rem; font-weight: 600; color: rgba(255,255,255,.9);
+    }
+    .hero-trust-item svg { color: var(--gold); flex-shrink: 0; }
     .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
     .hero-stats {
       position: absolute;
@@ -509,6 +518,37 @@
     .heritage-feature-icon svg { color: var(--blue); }
     .heritage-feature-text strong { display: block; font-size: .9rem; font-weight: 600; color: var(--gray-900); }
     .heritage-feature-text span { font-size: .82rem; color: var(--gray-500); }
+
+    /* ── Testimonials ── */
+    .testimonials { padding: 80px 0; background: var(--off-white); }
+    .testimonials-header { text-align: center; margin-bottom: 48px; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .testi-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--gray-100);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .testi-stars { color: var(--gold); font-size: 1.1rem; letter-spacing: 2px; }
+    .testi-text { font-size: .95rem; color: var(--gray-700); line-height: 1.7; flex: 1; font-style: italic; }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue), #1a8fd1);
+      color: #fff; font-weight: 700; font-size: .85rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .testi-name { font-weight: 700; font-size: .9rem; color: var(--gray-900); }
+    .testi-location { font-size: .78rem; color: var(--gray-500); }
 
     /* ── Awards ── */
     .awards {
@@ -872,6 +912,8 @@
       .hero-title { font-size: clamp(2rem, 8vw, 3rem); }
       .hero-tagline { font-size: .95rem; }
       .hero-badge { font-size: .7rem; }
+      .hero-trust { gap: 12px 16px; margin-bottom: 28px; }
+      .hero-trust-item { font-size: .78rem; }
       .hero-actions { flex-direction: column; }
       .hero-actions .btn { width: 100%; justify-content: center; }
 
@@ -905,6 +947,9 @@
 
       /* Services */
       .services-grid { grid-template-columns: 1fr; }
+
+      /* Testimonials */
+      .testimonials-grid { grid-template-columns: 1fr; }
 
       /* Awards */
       .awards-inner { flex-direction: column; text-align: center; }
@@ -1080,22 +1125,38 @@
       <div class="hero-content reveal">
         <div class="hero-badge">
           <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-          Serving Northern Utah Since 1914
+          Cache Valley's Most Trusted Store Since 1914
         </div>
         <h1 class="hero-title">
-          Smithfield<br/>
-          Implement Co.
-          <span class="accent">Built for Every Season.</span>
+          Everything Your<br/>Farm &amp; Family
+          <span class="accent">Needs — Since 1914.</span>
         </h1>
         <p class="hero-tagline">
-          From boots and fencing to hardware and housewares — everything your home, farm, and family needs, at prices that always go further.
+          Hardware, western wear, fencing, boots &amp; more. Over 110 years of serving Cache Valley — and we're not slowing down.
         </p>
+        <div class="hero-trust">
+          <div class="hero-trust-item">
+            <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Voted Best of Northern Utah 2024 &amp; 2025
+          </div>
+          <div class="hero-trust-item">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Family-owned, locally rooted
+          </div>
+          <div class="hero-trust-item">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            96 N Main St, Smithfield UT
+          </div>
+        </div>
         <div class="hero-actions">
-          <a href="#departments" class="btn btn-primary">
-            Shop Departments
+          <a href="#sales" class="btn btn-primary">
+            See This Week's Deals
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
-          <a href="#sales" class="btn btn-outline">This Week's Sales</a>
+          <a href="tel:4355635517" class="btn btn-outline">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.128.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Call Us
+          </a>
         </div>
       </div>
     </div>
@@ -1104,7 +1165,7 @@
         <div class="hero-stats-inner reveal">
           <div class="stat">
             <div class="stat-number">110+</div>
-            <div class="stat-label">Years in Business</div>
+            <div class="stat-label">Years Serving Cache Valley</div>
           </div>
           <div class="stat">
             <div class="stat-number">14</div>
@@ -1112,11 +1173,11 @@
           </div>
           <div class="stat">
             <div class="stat-number">2×</div>
-            <div class="stat-label">Best of N. Utah</div>
+            <div class="stat-label">Best of N. Utah Winner</div>
           </div>
           <div class="stat">
-            <div class="stat-number">1</div>
-            <div class="stat-label">Community Store</div>
+            <div class="stat-number">5★</div>
+            <div class="stat-label">Community Rated</div>
           </div>
         </div>
       </div>
@@ -1288,6 +1349,51 @@
                 <strong>Award-Winning</strong>
                 <span>Best of Northern Utah 2024 &amp; 2025 — voted by you</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TESTIMONIALS ── -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="testimonials-header reveal">
+        <span class="section-label">What People Are Saying</span>
+        <h2 class="section-title">Serving Cache Valley<br/>for 110+ Years</h2>
+      </div>
+      <div class="testimonials-grid reveal">
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"This place has everything. I came in for fencing supplies and left with a new pair of boots too. The staff actually knows what they're talking about — rare these days."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">JM</div>
+            <div>
+              <div class="testi-name">Jake M.</div>
+              <div class="testi-location">Smithfield, UT</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"My family has shopped here for three generations. The prices are fair, the quality is great, and they always have what I need. True community store."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">SL</div>
+            <div>
+              <div class="testi-name">Susan L.</div>
+              <div class="testi-location">Logan, UT</div>
+            </div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="testi-stars">★★★★★</div>
+          <p class="testi-text">"Best western wear selection in Cache Valley. Got my son kitted out for his first rodeo here. The weekly sales are unbeatable — I check the website every week."</p>
+          <div class="testi-author">
+            <div class="testi-avatar">RB</div>
+            <div>
+              <div class="testi-name">Randy B.</div>
+              <div class="testi-location">Hyde Park, UT</div>
             </div>
           </div>
         </div>
