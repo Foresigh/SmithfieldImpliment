@@ -1630,7 +1630,7 @@
         e.preventDefault();
         e.stopPropagation();
         const url = this.dataset.fbUrl;
-        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+        if (url) window.open(url, '_blank');
       });
       document.getElementById('hp-share-copy').addEventListener('click', function(e) {
         e.stopPropagation();

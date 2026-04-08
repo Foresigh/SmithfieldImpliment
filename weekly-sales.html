@@ -543,7 +543,7 @@
     document.getElementById('ws-share-fb').addEventListener('click', function(e) {
       e.preventDefault();
       const url = this.dataset.fbUrl;
-      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      if (url) window.open(url, '_blank');
     });
 
     document.getElementById('ws-share-copy').addEventListener('click', () => {
