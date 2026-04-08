@@ -1609,14 +1609,19 @@
     // ── Subscribe form ──
     async function handleSubscribe(e) {
       e.preventDefault();
-      const form = e.target;
-      const btn  = form.querySelector('.email-submit');
-      const msg  = form.querySelector('.email-fine');
+      const form  = e.target;
+      const btn   = form.querySelector('.email-submit');
+      const msg   = form.querySelector('.email-fine'); // may be null in strip layout
       const name  = form.querySelector('input[type="text"]').value;
       const email = form.querySelector('input[type="email"]').value;
+      const origLabel = btn.textContent;
 
       btn.textContent = 'Subscribing...';
       btn.disabled = true;
+
+      function setMsg(text, color) {
+        if (msg) { msg.textContent = text; msg.style.color = color || ''; }
+      }
 
       try {
         const res  = await fetch('/api/subscribe', {
@@ -1629,28 +1634,24 @@
         if (res.ok) {
           btn.textContent = 'Subscribed! ✓';
           btn.style.background = '#16a34a';
-          msg.textContent = 'You\'re on the list! Watch your inbox for weekly deals.';
-          msg.style.color = '#16a34a';
+          setMsg('You\'re on the list! Watch your inbox for weekly deals.', '#16a34a');
           form.reset();
           setTimeout(() => {
-            btn.textContent = 'Subscribe for Free';
+            btn.textContent = origLabel;
             btn.style.background = '';
             btn.disabled = false;
-            msg.textContent = 'No spam, ever. Unsubscribe anytime.';
-            msg.style.color = '';
+            setMsg('No spam, ever. Unsubscribe anytime.', '');
           }, 4000);
         } else {
-          btn.textContent = 'Subscribe for Free';
+          btn.textContent = origLabel;
           btn.disabled = false;
-          msg.textContent = data.error || 'Something went wrong. Please try again.';
-          msg.style.color = '#dc2626';
-          setTimeout(() => { msg.textContent = 'No spam, ever. Unsubscribe anytime.'; msg.style.color = ''; }, 4000);
+          setMsg(data.error || 'Something went wrong. Please try again.', '#dc2626');
+          setTimeout(() => setMsg('No spam, ever. Unsubscribe anytime.', ''), 4000);
         }
       } catch {
-        btn.textContent = 'Subscribe for Free';
+        btn.textContent = origLabel;
         btn.disabled = false;
-        msg.textContent = 'Network error. Please try again.';
-        msg.style.color = '#dc2626';
+        setMsg('Network error. Please try again.', '#dc2626');
       }
     }
 
