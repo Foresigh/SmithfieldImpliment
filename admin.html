@@ -870,7 +870,7 @@
       <tbody>
         ${salesData.map(r => `
           <tr>
-            <td><img src="/api/sales/image/${r.id}" style="width:90px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" /></td>
+            <td><img src="/api/sales/image/${r.id}?t=${new Date(r.updated_at||r.created_at).getTime()}" style="width:90px;height:50px;object-fit:cover;border-radius:6px;border:1px solid var(--border);" /></td>
             <td><strong>${esc(r.title)}</strong>${r.note ? `<div class="td-muted" style="font-size:.75rem;">${esc(r.note)}</div>` : ''}</td>
             <td><span style="font-size:1.1rem;font-weight:700;color:var(--danger);">${r.percentage}%</span></td>
             <td>

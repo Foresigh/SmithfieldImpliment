@@ -180,7 +180,7 @@ async function serveImage(req, res) {
     const buf = Buffer.from(row.image_data, 'base64');
     res.setHeader('Content-Type', row.image_type);
     res.setHeader('Content-Length', buf.length);
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.setHeader('Access-Control-Allow-Origin', '*');
     return res.send(buf);
   }
@@ -198,7 +198,7 @@ app.get('/sale/:id/image', async (req, res) => {
     const buf = Buffer.from(row.image_data, 'base64');
     res.setHeader('Content-Type', row.image_type);
     res.setHeader('Content-Length', buf.length);
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
     res.setHeader('Access-Control-Allow-Origin', '*');
     return res.send(buf);
   }
@@ -260,15 +260,15 @@ app.put('/api/admin/sales/:id', adminAuth, upload.single('image'), async (req, r
         imageData = req.file.buffer.toString('base64');
         imageType = req.file.mimetype;
       }
-      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=$4, image_type=$5, image_url=NULL WHERE id=$6 RETURNING id, title, percentage, note, published, created_at';
+      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=$4, image_type=$5, image_url=NULL, updated_at=NOW() WHERE id=$6 RETURNING id, title, percentage, note, published, created_at, updated_at';
       params = [title.trim(), parseInt(percentage), note?.trim() || null, imageData, imageType, req.params.id];
     } else if (image_url && image_url.trim()) {
       // new external URL — clear uploaded image
-      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=NULL, image_type=NULL, image_url=$4 WHERE id=$5 RETURNING id, title, percentage, note, published, created_at';
+      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=NULL, image_type=NULL, image_url=$4, updated_at=NOW() WHERE id=$5 RETURNING id, title, percentage, note, published, created_at, updated_at';
       params = [title.trim(), parseInt(percentage), note?.trim() || null, image_url.trim(), req.params.id];
     } else {
       // no image change
-      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3 WHERE id=$4 RETURNING id, title, percentage, note, published, created_at';
+      query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, updated_at=NOW() WHERE id=$4 RETURNING id, title, percentage, note, published, created_at, updated_at';
       params = [title.trim(), parseInt(percentage), note?.trim() || null, req.params.id];
     }
     const { rows } = await pool.query(query, params);

@@ -40,6 +40,7 @@ async function initDB() {
       -- add image_url column if upgrading existing table
       ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS image_url TEXT;
       ALTER TABLE sale_items ALTER COLUMN image_data DROP NOT NULL;
+      ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
     `);
     console.log('✅ Database tables ready');
   } finally {
