@@ -1630,7 +1630,12 @@
         e.preventDefault();
         e.stopPropagation();
         const url = this.dataset.fbUrl;
-        if (url) window.open(url, '_blank');
+        if (!url) return;
+        if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {
+          window.location.href = url;
+        } else {
+          window.open(url, '_blank');
+        }
       });
       document.getElementById('hp-share-copy').addEventListener('click', function(e) {
         e.stopPropagation();
