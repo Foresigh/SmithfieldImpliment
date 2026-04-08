@@ -307,15 +307,16 @@ function escHtml(str) {
 
 app.get('/sale/:id', async (req, res) => {
   const { rows } = await pool.query(
-    'SELECT id, title, percentage, note, image_url FROM sale_items WHERE id = $1 AND published = true',
+    'SELECT id, title, percentage, note, image_url, updated_at, created_at FROM sale_items WHERE id = $1 AND published = true',
     [req.params.id]
   );
   if (!rows.length) return res.redirect('/weekly-sales');
   const item  = rows[0];
   const base = (process.env.SITE_URL || 'https://smithfieldimpliment-production.up.railway.app').replace(/\/$/, '');
   const pageUrl = `${base}/sale/${item.id}`;
-  // Use dedicated /image route that always serves bytes directly (no redirect chain)
-  const imgUrl  = item.image_url || `${base}/sale/${item.id}/image`;
+  // Cache-bust with updated_at so Facebook re-fetches when image changes
+  const ts = new Date(item.updated_at || item.created_at).getTime();
+  const imgUrl  = item.image_url ? `${item.image_url}` : `${base}/sale/${item.id}/image?t=${ts}`;
   const title   = escHtml(`${item.percentage}% Off — ${item.title}`);
   const desc    = escHtml(item.note || `Save ${item.percentage}% on ${item.title} at Smithfield Implement Co.`);
   res.setHeader('Content-Type', 'text/html');
