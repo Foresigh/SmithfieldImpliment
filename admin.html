@@ -89,60 +89,112 @@
       align-items: center;
       justify-content: center;
       padding: 48px 40px;
-      background: var(--bg);
+      background: linear-gradient(160deg, #0d1b2e 0%, #0a2a4a 60%, #0d3b6e 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-right::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 70% 20%, rgba(18,121,190,.18) 0%, transparent 60%);
+      pointer-events: none;
     }
     .login-card {
-      background: var(--white);
-      border-radius: 20px;
-      padding: 48px;
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      padding: 48px 44px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 8px 40px rgba(0,0,0,.1);
+      box-shadow: 0 24px 64px rgba(0,0,0,.4);
+      position: relative;
+      z-index: 1;
+    }
+    .login-icon-wrap {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #1279BE, #0a3d6b);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 28px;
+      box-shadow: 0 8px 24px rgba(18,121,190,.4);
     }
     .login-logo {
-      margin-bottom: 32px;
+      margin-bottom: 6px;
     }
     .login-logo strong {
       display: block;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
-      color: var(--blue);
+      color: rgba(255,255,255,.9);
     }
     .login-logo span {
       font-size: .72rem;
-      color: var(--muted);
+      color: rgba(255,255,255,.4);
       text-transform: uppercase;
       letter-spacing: .08em;
     }
-    .login-title { font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
-    .login-sub   { font-size: .875rem; color: var(--muted); margin-bottom: 28px; }
+    .login-title { font-size: 1.75rem; font-weight: 800; margin-bottom: 6px; color: #fff; }
+    .login-sub   { font-size: .875rem; color: rgba(255,255,255,.5); margin-bottom: 32px; }
     @media (max-width: 768px) {
       #login-screen { grid-template-columns: 1fr; }
       .login-left { display: none; }
       .login-right { padding: 32px 20px; }
     }
-    .form-group  { margin-bottom: 16px; }
-    .form-label  { display: block; font-size: .8rem; font-weight: 600; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+    .form-group  { margin-bottom: 18px; }
+    .form-label  { display: block; font-size: .75rem; font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .08em; }
+    .input-wrap  { position: relative; }
+    .input-icon  {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,.3); pointer-events: none;
+    }
     .form-input  {
-      width: 100%; padding: 12px 14px;
-      border: 2px solid var(--border); border-radius: var(--radius);
+      width: 100%; padding: 13px 14px 13px 42px;
+      background: rgba(255,255,255,.07);
+      border: 1.5px solid rgba(255,255,255,.12);
+      border-radius: var(--radius);
       font-size: .9rem; font-family: 'Inter', sans-serif;
-      outline: none; transition: border-color .2s;
+      color: #fff;
+      outline: none; transition: border-color .2s, background .2s;
     }
-    .form-input:focus { border-color: var(--blue); }
+    .form-input::placeholder { color: rgba(255,255,255,.25); }
+    .form-input:focus { border-color: rgba(18,121,190,.8); background: rgba(255,255,255,.1); }
     .login-btn {
-      width: 100%; padding: 13px;
-      background: var(--blue); color: var(--white);
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #1279BE 0%, #0a3d6b 100%);
+      color: var(--white);
       border: none; border-radius: var(--radius);
-      font-size: .9rem; font-weight: 600;
+      font-size: .95rem; font-weight: 700;
       font-family: 'Inter', sans-serif;
-      cursor: pointer; transition: background .2s;
-      margin-top: 8px;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s;
+      margin-top: 10px;
+      letter-spacing: .02em;
+      box-shadow: 0 4px 20px rgba(18,121,190,.45);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .login-btn:hover { background: var(--blue-dark); }
+    .login-btn:hover { opacity: .9; transform: translateY(-1px); }
+    .login-btn:active { transform: translateY(0); }
+    .login-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 28px 0 0;
+    }
+    .login-divider span {
+      font-size: .72rem; color: rgba(255,255,255,.2);
+      white-space: nowrap; text-transform: uppercase; letter-spacing: .06em;
+    }
+    .login-divider::before, .login-divider::after {
+      content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.1);
+    }
+    .login-secure {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: 20px;
+      font-size: .72rem; color: rgba(255,255,255,.25);
+    }
     .login-error {
-      background: var(--danger-bg); color: var(--danger);
-      border: 1px solid #fecaca; border-radius: var(--radius);
+      background: rgba(239,68,68,.15); color: #fca5a5;
+      border: 1px solid rgba(239,68,68,.3); border-radius: var(--radius);
       padding: 10px 14px; font-size: .85rem;
       margin-top: 12px; display: none;
     }
@@ -476,24 +528,41 @@
   <!-- Right panel — login form -->
   <div class="login-right">
     <div class="login-card">
+      <div class="login-icon-wrap">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
       <div class="login-logo">
         <strong>Smithfield Implement Co.</strong>
         <span>Admin Dashboard</span>
       </div>
-      <h2 class="login-title">Sign in</h2>
-      <p class="login-sub">Enter your admin credentials to continue.</p>
+      <h2 class="login-title">Welcome back</h2>
+      <p class="login-sub">Sign in to manage your store.</p>
       <form id="login-form">
         <div class="form-group">
           <label class="form-label" for="username-input">Username</label>
-          <input id="username-input" type="text" class="form-input" placeholder="admin" required autocomplete="username" />
+          <div class="input-wrap">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input id="username-input" type="text" class="form-input" placeholder="Enter username" required autocomplete="username" />
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="password-input">Password</label>
-          <input id="password-input" type="password" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
+          <div class="input-wrap">
+            <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input id="password-input" type="password" class="form-input" placeholder="Enter password" required autocomplete="current-password" />
+          </div>
         </div>
-        <button type="submit" class="login-btn">Sign In</button>
+        <button type="submit" class="login-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Sign In
+        </button>
         <div class="login-error" id="login-error">Invalid username or password.</div>
       </form>
+      <div class="login-divider"><span>Smithfield Implement Co.</span></div>
+      <div class="login-secure">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Secure admin access only
+      </div>
     </div>
   </div>
 
