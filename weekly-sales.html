@@ -294,14 +294,15 @@
     .cta-modal-img-wrap { position: relative; }
     .cta-share {
       border-top: 1px solid #f1f5f9; padding-top: 14px;
-      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      display: flex; align-items: center; gap: 8px; flex-wrap: nowrap;
     }
-    .cta-share-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-500); margin-right: 4px; }
+    .cta-share-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--gray-500); white-space: nowrap; flex-shrink: 0; }
     .cta-share-btn {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 7px 12px; border-radius: 8px; border: 1px solid var(--gray-300);
-      font-size: .78rem; font-weight: 600; font-family: var(--font-sans);
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 10px; border-radius: 8px; border: 1px solid var(--gray-300);
+      font-size: .75rem; font-weight: 600; font-family: var(--font-sans);
       cursor: pointer; transition: all .2s; background: #fff; text-decoration: none; color: var(--gray-700);
+      white-space: nowrap; flex: 1; justify-content: center;
     }
     .cta-share-btn:hover { border-color: var(--blue); color: var(--blue); background: #e8f3fb; }
     .cta-share-btn.fb:hover  { border-color: #1877f2; color: #1877f2; background: #e7f0fd; }
