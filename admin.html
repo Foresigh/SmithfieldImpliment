@@ -35,30 +35,29 @@
       min-height: 100vh;
       display: grid;
       grid-template-columns: 1fr 1fr;
+      position: relative;
+      background-image: url('/SMITHFIELD-IMP-EXTERIOR.webp');
+      background-size: cover;
+      background-position: center 40%;
+    }
+    #login-screen::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,29,61,.92) 0%, rgba(18,121,190,.55) 100%);
+      pointer-events: none;
+      z-index: 0;
     }
     .login-left {
       position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       padding: 48px;
-      background: linear-gradient(135deg, #0a3d6b 0%, #1279BE 100%);
     }
-    .login-left-bg {
-      position: absolute;
-      inset: 0;
-      background-image: url('/SMITHFIELD-IMP-EXTERIOR.webp');
-      background-size: cover;
-      background-position: center 40%;
-      opacity: .18;
-    }
-    .login-left-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(10,29,61,.9) 0%, rgba(18,121,190,.4) 100%);
-    }
+    .login-left-bg { display: none; }
+    .login-left-overlay { display: none; }
     .login-left-content { position: relative; z-index: 2; }
+    .login-left { z-index: 1; }
     .login-left-badge {
       display: inline-flex; align-items: center; gap: 8px;
       background: rgba(255,179,2,.2); border: 1px solid rgba(255,179,2,.4);
@@ -89,15 +88,9 @@
       align-items: center;
       justify-content: center;
       padding: 48px 40px;
-      background: linear-gradient(160deg, #0d1b2e 0%, #0a2a4a 60%, #0d3b6e 100%);
+      background: transparent;
       position: relative;
-      overflow: hidden;
-    }
-    .login-right::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: radial-gradient(ellipse at 70% 20%, rgba(18,121,190,.18) 0%, transparent 60%);
-      pointer-events: none;
+      z-index: 1;
     }
     .login-card {
       background: rgba(255,255,255,.06);
@@ -140,7 +133,7 @@
     @media (max-width: 768px) {
       #login-screen { grid-template-columns: 1fr; }
       .login-left { display: none; }
-      .login-right { padding: 32px 20px; }
+      .login-right { padding: 32px 20px; min-height: 100vh; }
     }
     .form-group  { margin-bottom: 18px; }
     .form-label  { display: block; font-size: .75rem; font-weight: 600; margin-bottom: 8px; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .08em; }
