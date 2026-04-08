@@ -586,6 +586,19 @@
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCTA(); });
 
     loadSales();
+
+    // ── Analytics tracking ──
+    (function () {
+      const page = window.location.pathname + window.location.search;
+      const referrer = document.referrer || '';
+      fetch('/api/track/view', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page, referrer }) }).catch(() => {});
+      document.addEventListener('click', function (e) {
+        const el = e.target.closest('a, button, [data-track]');
+        if (!el) return;
+        const label = (el.dataset.track || el.innerText?.trim() || el.getAttribute('href') || 'unknown').slice(0, 80);
+        fetch('/api/track/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page, element: label }) }).catch(() => {});
+      }, { passive: true });
+    })();
   </script>
 </body>
 </html>

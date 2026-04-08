@@ -297,6 +297,68 @@ app.delete('/api/admin/sales/:id', adminAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// ── POST /api/track/view ─────────────────────────────────────
+app.post('/api/track/view', async (req, res) => {
+  const { page, referrer } = req.body;
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+  const ua = req.headers['user-agent'] || '';
+  res.json({ ok: true }); // respond immediately, geo lookup is async
+  try {
+    let country = null, city = null, region = null;
+    if (ip && ip !== '127.0.0.1' && ip !== '::1') {
+      const geo = await fetch(`http://ip-api.com/json/${ip}?fields=country,city,regionName`)
+        .then(r => r.json()).catch(() => ({}));
+      country = geo.country || null;
+      city    = geo.city    || null;
+      region  = geo.regionName || null;
+    }
+    await pool.query(
+      'INSERT INTO page_views (page, referrer, user_agent, ip, country, city, region) VALUES ($1,$2,$3,$4,$5,$6,$7)',
+      [page || '/', referrer || null, ua, ip, country, city, region]
+    );
+  } catch (e) { console.error('track/view:', e.message); }
+});
+
+// ── POST /api/track/click ────────────────────────────────────
+app.post('/api/track/click', async (req, res) => {
+  const { page, element } = req.body;
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.ip || '';
+  res.json({ ok: true });
+  try {
+    await pool.query(
+      'INSERT INTO click_events (page, element, ip) VALUES ($1,$2,$3)',
+      [page || '/', element || 'unknown', ip]
+    );
+  } catch (e) { console.error('track/click:', e.message); }
+});
+
+// ── GET /api/admin/analytics ──────────────────────────────────
+app.get('/api/admin/analytics', adminAuth, async (req, res) => {
+  try {
+    const [today, week, topPages, topRefs, recent, topClicks, uniqueToday] = await Promise.all([
+      pool.query("SELECT COUNT(*) FROM page_views WHERE created_at > NOW() - INTERVAL '1 day'"),
+      pool.query("SELECT COUNT(*) FROM page_views WHERE created_at > NOW() - INTERVAL '7 days'"),
+      pool.query("SELECT page, COUNT(*) AS count FROM page_views GROUP BY page ORDER BY count DESC LIMIT 6"),
+      pool.query("SELECT referrer, COUNT(*) AS count FROM page_views WHERE referrer IS NOT NULL AND referrer <> '' GROUP BY referrer ORDER BY count DESC LIMIT 6"),
+      pool.query("SELECT page, ip, country, city, region, referrer, user_agent, created_at FROM page_views ORDER BY created_at DESC LIMIT 100"),
+      pool.query("SELECT element, COUNT(*) AS count FROM click_events GROUP BY element ORDER BY count DESC LIMIT 10"),
+      pool.query("SELECT COUNT(DISTINCT ip) FROM page_views WHERE created_at > NOW() - INTERVAL '1 day'"),
+    ]);
+    res.json({
+      todayViews:    parseInt(today.rows[0].count),
+      weekViews:     parseInt(week.rows[0].count),
+      uniqueToday:   parseInt(uniqueToday.rows[0].count),
+      topPages:      topPages.rows,
+      topReferrers:  topRefs.rows,
+      recentVisitors: recent.rows,
+      topClicks:     topClicks.rows,
+    });
+  } catch (e) {
+    console.error('analytics error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── /sale/:id — OG meta tags for Facebook/Twitter sharing ────
 function escHtml(str) {
   return String(str)

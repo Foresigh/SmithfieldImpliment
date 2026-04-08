@@ -41,6 +41,26 @@ async function initDB() {
       ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS image_url TEXT;
       ALTER TABLE sale_items ALTER COLUMN image_data DROP NOT NULL;
       ALTER TABLE sale_items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+
+      CREATE TABLE IF NOT EXISTS page_views (
+        id         SERIAL PRIMARY KEY,
+        page       VARCHAR(255),
+        referrer   TEXT,
+        user_agent TEXT,
+        ip         VARCHAR(64),
+        country    VARCHAR(100),
+        city       VARCHAR(100),
+        region     VARCHAR(100),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS click_events (
+        id         SERIAL PRIMARY KEY,
+        page       VARCHAR(255),
+        element    TEXT,
+        ip         VARCHAR(64),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
     `);
     console.log('✅ Database tables ready');
   } finally {
