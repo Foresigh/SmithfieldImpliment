@@ -839,7 +839,7 @@
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       const idx = salesData.findIndex(r => r.id === parseInt(id));
-      if (idx !== -1) salesData[idx] = { ...salesData[idx], ...data };
+      if (idx !== -1) salesData[idx] = { ...salesData[idx], ...data, updated_at: new Date().toISOString() };
       renderSalesList();
       editModal.classList.remove('open');
       showToast('Sale item updated!');
