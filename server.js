@@ -275,8 +275,6 @@ app.get('/sale/:id', async (req, res) => {
   <meta property="og:title"       content="${title}" />
   <meta property="og:description" content="${desc}" />
   <meta property="og:image"       content="${imgUrl}" />
-  <meta property="og:image:width" content="800" />
-  <meta property="og:image:height" content="600" />
   <meta property="og:url"         content="${pageUrl}" />
   <meta property="og:type"        content="website" />
   <meta property="og:site_name"   content="Smithfield Implement Co." />
@@ -284,10 +282,9 @@ app.get('/sale/:id', async (req, res) => {
   <meta name="twitter:title"      content="${title}" />
   <meta name="twitter:description" content="${desc}" />
   <meta name="twitter:image"      content="${imgUrl}" />
-  <meta http-equiv="refresh" content="0;url=/weekly-sales?item=${item.id}" />
   <script>window.location.replace('/weekly-sales?item=${item.id}');</script>
 </head>
-<body></body>
+<body><p>Redirecting…</p></body>
 </html>`);
 });
 
