@@ -17,6 +17,7 @@ const upload = multer({
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
+app.set('trust proxy', 1); // respect x-forwarded-proto from Railway
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
@@ -251,14 +252,18 @@ function escHtml(str) {
 
 app.get('/sale/:id', async (req, res) => {
   const { rows } = await pool.query(
-    'SELECT id, title, percentage, note FROM sale_items WHERE id = $1 AND published = true',
+    'SELECT id, title, percentage, note, image_url FROM sale_items WHERE id = $1 AND published = true',
     [req.params.id]
   );
   if (!rows.length) return res.redirect('/weekly-sales');
-  const item    = rows[0];
-  const base    = `${req.protocol}://${req.get('host')}`;
+  const item  = rows[0];
+  // Always use https for OG tags — Railway sends x-forwarded-proto=https
+  const proto = req.get('x-forwarded-proto') || req.protocol;
+  const host  = req.get('x-forwarded-host') || req.get('host');
+  const base  = `${proto}://${host}`;
   const pageUrl = `${base}/sale/${item.id}`;
-  const imgUrl  = `${base}/api/sales/image/${item.id}`;
+  // Use the external image_url directly if available (avoids redirect for FB crawler)
+  const imgUrl  = item.image_url || `${base}/api/sales/image/${item.id}`;
   const title   = escHtml(`${item.percentage}% Off — ${item.title}`);
   const desc    = escHtml(item.note || `Save ${item.percentage}% on ${item.title} at Smithfield Implement Co.`);
   res.setHeader('Content-Type', 'text/html');
