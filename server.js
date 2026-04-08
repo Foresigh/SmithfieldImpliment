@@ -3,7 +3,25 @@ const express = require('express');
 const cors    = require('cors');
 const path    = require('path');
 const multer  = require('multer');
+const sharp   = require('sharp');
 const { pool, initDB } = require('./db');
+
+// Resize uploaded image to at least 600px on the shortest side (for FB og:image)
+async function processImage(file) {
+  const meta = await sharp(file.buffer).metadata();
+  const minDim = Math.min(meta.width, meta.height);
+  let buf = file.buffer;
+  let mime = file.mimetype;
+  if (minDim < 600) {
+    const scale = Math.ceil(600 / minDim);
+    buf = await sharp(file.buffer)
+      .resize(meta.width * scale, meta.height * scale, { fit: 'fill' })
+      .jpeg({ quality: 85 })
+      .toBuffer();
+    mime = 'image/jpeg';
+  }
+  return { buf, mime };
+}
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -208,8 +226,9 @@ app.post('/api/admin/sales', adminAuth, upload.single('image'), async (req, res)
   }
   let imageData = null, imageType = null, imgUrl = null;
   if (req.file) {
-    imageData = req.file.buffer.toString('base64');
-    imageType = req.file.mimetype;
+    const { buf, mime } = await processImage(req.file);
+    imageData = buf.toString('base64');
+    imageType = mime;
   } else {
     imgUrl = image_url.trim();
   }
@@ -229,8 +248,9 @@ app.put('/api/admin/sales/:id', adminAuth, upload.single('image'), async (req, r
   let query, params;
   if (req.file) {
     // new uploaded file — clear image_url
-    const imageData = req.file.buffer.toString('base64');
-    const imageType = req.file.mimetype;
+    const { buf, mime } = await processImage(req.file);
+    const imageData = buf.toString('base64');
+    const imageType = mime;
     query  = 'UPDATE sale_items SET title=$1, percentage=$2, note=$3, image_data=$4, image_type=$5, image_url=NULL WHERE id=$6 RETURNING id, title, percentage, note, published, created_at';
     params = [title.trim(), parseInt(percentage), note?.trim() || null, imageData, imageType, req.params.id];
   } else if (image_url && image_url.trim()) {
