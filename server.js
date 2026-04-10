@@ -1,9 +1,10 @@
 require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
-const path    = require('path');
-const multer  = require('multer');
-const sharp   = require('sharp');
+const express     = require('express');
+const cors        = require('cors');
+const path        = require('path');
+const multer      = require('multer');
+const sharp       = require('sharp');
+const compression = require('compression');
 const { pool, initDB } = require('./db');
 
 // Resize uploaded image to at least 600px on the shortest side (for FB og:image)
@@ -36,9 +37,19 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 app.set('trust proxy', 1); // respect x-forwarded-proto from Railway
+app.use(compression()); // gzip all responses
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+// Serve static files — cache images/fonts aggressively, HTML never
+app.use(express.static(path.join(__dirname), {
+  setHeaders(res, filePath) {
+    if (/\.(webp|png|jpg|jpeg|svg|ico|woff2?)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    } else if (/\.(html)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // ── POST /api/subscribe ──────────────────────────────────────
 app.post('/api/subscribe', async (req, res) => {
